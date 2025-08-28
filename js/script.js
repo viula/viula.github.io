@@ -1,53 +1,35 @@
-async function displayPosts() {
+const posts = [
+    {
+        url: "/2025/08/28/il-mio-primo-post.html",
+        title: "Il mio primo post",
+        date: "2025-08-28",
+        author: "Andrea",
+        excerpt: "Benvenuti nel mio nuovo sito su GitHub Pages 🎉"
+    }
+    // Aggiungi altri post qui
+];
+
+function displayPosts() {
     const postsContainer = document.getElementById('posts-container');
     
-    for (const post of posts) {
-        try {
-            // Carica il contenuto Markdown
-            const response = await fetch(post.markdownFile);
-            const markdown = await response.text();
-            
-            // Converti Markdown in HTML
-            const content = marked.parse(markdown);
-            
-            const postElement = document.createElement('div');
-            postElement.className = 'post';
-            
-            postElement.innerHTML = `
-                <div class="post-title">${post.title}</div>
-                <div class="post-meta">
-                    <span>📅 ${formatDate(post.date)}</span> · 
-                    <span>✍️ ${post.author}</span>
-                </div>
-                <div class="post-excerpt">
-                    ${post.excerpt}
-                    <p><a href="#" onclick="showFullPost('${post.markdownFile}')">Leggi tutto →</a></p>
-                </div>
-            `;
-            
-            postsContainer.appendChild(postElement);
-        } catch (error) {
-            console.error(`Errore nel caricamento del post ${post.title}:`, error);
-        }
-    }
-}
-
-async function showFullPost(markdownFile) {
-    try {
-        const response = await fetch(markdownFile);
-        const markdown = await response.text();
-        const content = marked.parse(markdown);
+    posts.forEach(post => {
+        const postElement = document.createElement('div');
+        postElement.className = 'post';
         
-        const postsContainer = document.getElementById('posts-container');
-        postsContainer.innerHTML = `
-            <div class="post full-post">
-                ${content}
-                <p><a href="#" onclick="displayPosts()">← Torna alla lista</a></p>
+        postElement.innerHTML = `
+            <div class="post-title">${post.title}</div>
+            <div class="post-meta">
+                <span>📅 ${formatDate(post.date)}</span> · 
+                <span>✍️ ${post.author}</span>
+            </div>
+            <div class="post-excerpt">
+                ${post.excerpt}
+                <p><a href="${post.url}">Leggi tutto →</a></p>
             </div>
         `;
-    } catch (error) {
-        console.error('Errore nel caricamento del post completo:', error);
-    }
+        
+        postsContainer.appendChild(postElement);
+    });
 }
 
 function formatDate(dateString) {
