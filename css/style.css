@@ -1,0 +1,82 @@
+/* style.css */
+body { 
+    background-color: white; 
+    color: gray; 
+    font-family: Arial, sans-serif; 
+}
+a { 
+    color: blue; 
+    text-decoration: underline; 
+}
+
+.title {
+    font-size: 2em; 
+    font-weight: bold; 
+    margin-bottom: 20px; 
+    /* testo centrale */
+    text-align: center;
+}
+
+.container { 
+    margin: 20px; 
+    padding: 20px; 
+    border: 1px solid #ccc; 
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.button {
+    background-color: #008CBA; 
+    color: white; 
+    padding: 10px 20px; 
+    border: none; 
+    cursor: pointer; 
+}
+
+.button:hover {
+    background-color: #005f73; 
+}
+
+.link {
+    color: #0066cc; 
+    text-decoration: none; 
+}
+.link:hover {
+    text-decoration: underline; 
+}
+
+.footer {
+    text-align: center; 
+    padding: 10px; 
+    background-color: #f1f1f1; 
+    position: fixed; 
+    width: 100%; 
+    bottom: 0; 
+}
+
+.post {
+    border-bottom: 1px solid #ddd; 
+    padding: 10px 0; 
+}
+
+.post-title {
+    font-size: 1.5em; 
+    margin-bottom: 5px; 
+}
+
+.post-meta {
+    color: #999; 
+    font-size: 0.9em; 
+    margin-bottom: 10px; 
+}
+
+.post-content {
+    font-size: 1em; 
+    line-height: 1.6; 
+}
+
+/* End of style.css */

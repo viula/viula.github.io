@@ -1,14 +1,34 @@
-<html>
-  <head>
-    <title>Andrea Violato</title>
-  </head>
-  <body>
-    <div class="container">
-      <h1>Andrea Violato</h1>
-      <h3>Personal web page</h3>
-      <p>Work in progress</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./css/style.css">
+  <title>Andrea Violato</title>
+</head>
+<body>
+  <div class="container">
+    <div class="title">
+      {{ site.description }}
+      <h2>{{ site.title }}</h2>
     </div>
-  </body>
-  <footer></footer>
-  <script></script>
+    {% for post in site.posts %}
+    <div class="post">
+      <div class="post-title">{{ post.title }}</div>
+        <div class="post-meta">
+          <span>📅 {{ post.date | date: "%d %B %Y" }}</span> · 
+          <span>✍️ {{ post.author }}</span>
+        </div>
+        <div class="post-content">
+          {{ post.excerpt }}
+          <p><a href="{{ post.url }}">Leggi tutto →</a></p>
+        </div>
+      </div>
+    {% endfor %}
+    <div class="links"></div>
+  </div>
+</body>
+<footer>
+  <p>Made with ❤️ by Andrea Violato</p>
+</footer>
 </html>
