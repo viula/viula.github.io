@@ -1,0 +1,11 @@
+{
+    "posts": [
+        {
+            "url": "/posts/il-mio-primo-post",
+            "title": "Il mio primo post",
+            "date": "2025-08-28",
+            "author": "Andrea",
+            "excerpt": "Benvenuti nel mio nuovo sito su GitHub Pages 🎉"
+        }
+    ]
+}

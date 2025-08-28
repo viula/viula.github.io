@@ -1,15 +1,14 @@
-const posts = [
-    {
-        url: "/2025/08/28/il-mio-primo-post.html",
-        title: "Il mio primo post",
-        date: "2025-08-28",
-        author: "Andrea",
-        excerpt: "Benvenuti nel mio nuovo sito su GitHub Pages 🎉"
+async function loadPosts() {
+    try {
+        const response = await fetch('../_posts/index.json');  // Percorso relativo
+        const data = await response.json();
+        displayPosts(data.posts);
+    } catch (error) {
+        console.error('Errore nel caricamento dei post:', error);
     }
-    // Aggiungi altri post qui
-];
+}
 
-function displayPosts() {
+function displayPosts(posts) {
     const postsContainer = document.getElementById('posts-container');
     
     posts.forEach(post => {
@@ -38,5 +37,4 @@ function formatDate(dateString) {
     return date.toLocaleDateString('it-IT', options);
 }
 
-// Inizializza il display dei post quando la pagina è caricata
-document.addEventListener('DOMContentLoaded', displayPosts);
+document.addEventListener('DOMContentLoaded', loadPosts);
