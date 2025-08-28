@@ -1,6 +1,6 @@
 async function loadPosts() {
     try {
-        const response = await fetch('../_posts/index.json');  // Percorso relativo
+        const response = await fetch('./_posts/index.json');  // Percorso relativo
         const data = await response.json();
         displayPosts(data.posts);
     } catch (error) {
