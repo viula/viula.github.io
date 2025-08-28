@@ -137,6 +137,7 @@
 
       files
         .filter(f => f.name.endsWith(".md"))
+        .sort((a, b) => b.name.localeCompare(a.name)) // più recente prima
         .forEach(file => {
           fetch(file.download_url)
             .then(r => r.text())
