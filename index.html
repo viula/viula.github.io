@@ -1,18 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./css/bootstrap.min.css">
-    <title>Andrea Violato</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./css/bootstrap.min.css">
+  <title>Andrea Violato</title>
 </head>
 <body>
 <main class="container">
   <div class="p-4 p-md-5 mb-4 rounded text-body-emphasis bg-body-secondary">
     <div class="col-lg-6 px-0">
-      <h1 class="display-4 fst-italic">
-        Andrea Violato
-      </h1>
+      <h1 class="display-4 fst-italic">Andrea Violato</h1>
       <p class="lead my-3">Personal page</p>
     </div>
   </div>
@@ -20,19 +18,17 @@
     <div class="col-md-8">
       <h3 class="pb-4 mb-4 fst-italic border-bottom">Interesting readings</h3>
       
-      <!-- Qui verrà caricato posts.md -->
-      <article class="blog-post">
-        <p><em>Loading content...</em></p>
-      </article>
+      <!-- Qui compariranno i post -->
+      <div id="posts">
+        <p><em>Loading posts...</em></p>
+      </div>
       
     </div>
     <div class="col-md-4">
       <div class="position-sticky" style="top: 2rem">
         <div class="p-4 mb-3 bg-body-tertiary rounded">
           <h4 class="fst-italic">About</h4>
-          <p class="mb-0">
-            Scrum product owner, technological project manager, tech enthusiast.
-          </p>
+          <p class="mb-0">Scrum product owner, technological project manager, tech enthusiast.</p>
           <p class="mb-0">I love to read about technology, compliance, and management.</p>
           <p class="mb-0">Father of two, husband of one.</p>
         </div>
@@ -51,20 +47,33 @@
 <script src="./js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
-  fetch("posts.md")
-    .then(response => response.text())
-    .then(md => {
-      const content = marked.parse(md);
-      document.querySelector(".blog-post").innerHTML = content;
-    })
-    .catch(err => {
-      document.querySelector(".blog-post").innerHTML = "<p>⚠️ Errore nel caricamento del post.</p>";
-      console.error(err);
-    });
+  // Elenco dei file dei post da caricare
+  const posts = [
+    "posts/2025-08-28-first-post.md",
+    "posts/2025-08-29-second-post.md",
+    "posts/2025-08-30-third-post.md"
+  ];
+
+  const container = document.getElementById("posts");
+  container.innerHTML = "";
+
+  posts.forEach(file => {
+    fetch(file)
+      .then(response => response.text())
+      .then(md => {
+        const article = document.createElement("article");
+        article.className = "blog-post mb-5";
+        article.innerHTML = marked.parse(md);
+        container.appendChild(article);
+      })
+      .catch(err => {
+        console.error("Errore nel caricamento di", file, err);
+      });
+  });
 </script>
 </body>
 <footer class="container text-center mt-5 mb-3">
-    credits: <a href="https://getbootstrap.com/docs/5.3/examples/blog/">Bootstrap blog example</a> |
-    hosted on <a href="https://pages.github.com/">GitHub pages</a>
+  credits: <a href="https://getbootstrap.com/docs/5.3/examples/blog/">Bootstrap blog example</a> |
+  hosted on <a href="https://pages.github.com/">GitHub pages</a>
 </footer>
 </html>
