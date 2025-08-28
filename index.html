@@ -1,34 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="./css/style.css">
-  <title>Andrea Violato</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/style.css">
+      <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <title>Andrea Violato</title>
 </head>
 <body>
-  <div class="container">
-    <div class="title">
-      {{ site.description }}
-      <h2>{{ site.title }}</h2>
+    <div class="container">
+        <div class="title">
+            <h1>Andrea Violato Blog</h1>
+        </div>
+        <div id="posts-container">
+            <!-- I post verranno inseriti qui da JavaScript -->
+        </div>
+        <div class="links"></div>
     </div>
-    {% for post in site.posts %}
-    <div class="post">
-      <div class="post-title">{{ post.title }}</div>
-        <div class="post-meta">
-          <span>📅 {{ post.date | date: "%d %B %Y" }}</span> · 
-          <span>✍️ {{ post.author }}</span>
-        </div>
-        <div class="post-content">
-          {{ post.excerpt }}
-          <p><a href="{{ post.url }}">Leggi tutto →</a></p>
-        </div>
-      </div>
-    {% endfor %}
-    <div class="links"></div>
-  </div>
+    <script src="./js/script.js"></script>
 </body>
 <footer>
-  <p>Made with ❤️ by Andrea Violato</p>
+    <p>Made with ❤️ by Andrea Violato</p>
 </footer>
 </html>
