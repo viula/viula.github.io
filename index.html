@@ -126,10 +126,10 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
   const user = "viula";        // il tuo username GitHub
-  const repo = "viula.github.io";     // nome del repo
+  const repo = "post_repo";     // nome del repo
   const path = "posts";        // cartella dove sono i file
 
-  fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`)
+  fetch(`https://api.github.com/repos/${user}/${repo}/contents`)
     .then(response => response.json())
     .then(files => {
       const container = document.getElementById("posts");
