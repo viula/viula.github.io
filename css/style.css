@@ -1,0 +1,168 @@
+/* Base styles */
+:root {
+  --primary-color: #FFF8E7;
+  --secondary-color: #4A90E2;
+  --background-color: #121212;
+  --accent-color: #2F2F2F;
+  --max-width: 1200px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.6;
+  color: var(--primary-color);
+  background: var(--background-color);
+}
+
+/* Layout */
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.hero {
+  padding: 3rem 1rem;
+  margin-bottom: 2rem;
+  background-color: var(--accent-color);
+  border-radius: 8px;
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: var(--secondary-color);
+  font-size: 1.2rem;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+/* Posts section */
+.posts h3 {
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--accent-color);
+}
+
+.posts .blog-post {
+  background: var(--accent-color);
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.posts .blog-post ul {
+  margin-left: 2rem;
+}
+
+.posts .blog-post a {
+  color: var(--secondary-color);
+  text-decoration: none;
+}
+
+.post .blog-post a:hover {
+  text-decoration: underline;
+}
+
+/* Sidebar */
+.sidebar > div {
+  background: var(--accent-color);
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.sidebar h4 {
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 1rem;
+}
+
+.sidebar ul {
+  list-style: none;
+}
+
+.sidebar a {
+  color: var(--secondary-color);
+  text-decoration: none;
+}
+
+.sidebar a:hover {
+  text-decoration: underline;
+}
+
+.sidebar .about p {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--secondary-color);
+  font-size: 0.9rem;
+}
+
+footer a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive design */
+@media (min-width: 768px) {
+  .content {
+    grid-template-columns: 2fr 1fr;
+  }
+  
+  .hero {
+    padding: 4rem 2rem;
+  }
+  
+  .hero h1 {
+    font-size: 3.5rem;
+  }
+  
+  .sidebar {
+    position: sticky;
+    top: 2rem;
+  }
+}
+
+/* Blog post styling */
+.blog-post {
+  margin-bottom: 3rem;
+}
+
+.blog-post h2 {
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 1rem;
+}
+
+.blog-post p {
+  margin-bottom: 1rem;
+}
+
+.blog-post a {
+  color: var(--primary-color);
+  text-decoration: underline;
+}

@@ -3,157 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="./css/bootstrap.min.css">
-  <link
-      href="https://fonts.googleapis.com/css?family=Playfair+Display:700,900&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        user-select: none;
-      }
-      @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-          font-size: 3.5rem;
-        }
-      }
-      .b-example-divider {
-        width: 100%;
-        height: 3rem;
-        background-color: #0000001a;
-        border: solid rgba(0, 0, 0, 0.15);
-        border-width: 1px 0;
-        box-shadow:
-          inset 0 0.5em 1.5em #0000001a,
-          inset 0 0.125em 0.5em #00000026;
-      }
-      .b-example-vr {
-        flex-shrink: 0;
-        width: 1.5rem;
-        height: 100vh;
-      }
-      .bi {
-        vertical-align: -0.125em;
-        fill: currentColor;
-      }
-      .nav-scroller {
-        position: relative;
-        z-index: 2;
-        height: 2.75rem;
-        overflow-y: hidden;
-      }
-      .nav-scroller .nav {
-        display: flex;
-        flex-wrap: nowrap;
-        padding-bottom: 1rem;
-        margin-top: -1px;
-        overflow-x: auto;
-        text-align: center;
-        white-space: nowrap;
-        -webkit-overflow-scrolling: touch;
-      }
-      .btn-bd-primary {
-        --bd-violet-bg: #712cf9;
-        --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
-        --bs-btn-font-weight: 600;
-        --bs-btn-color: var(--bs-white);
-        --bs-btn-bg: var(--bd-violet-bg);
-        --bs-btn-border-color: var(--bd-violet-bg);
-        --bs-btn-hover-color: var(--bs-white);
-        --bs-btn-hover-bg: #6528e0;
-        --bs-btn-hover-border-color: #6528e0;
-        --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
-        --bs-btn-active-color: var(--bs-btn-hover-color);
-        --bs-btn-active-bg: #5a23c8;
-        --bs-btn-active-border-color: #5a23c8;
-      }
-      .bd-mode-toggle {
-        z-index: 1500;
-      }
-      .bd-mode-toggle .bi {
-        width: 1em;
-        height: 1em;
-      }
-      .bd-mode-toggle .dropdown-menu .active .bi {
-        display: block !important;
-      }
-    </style>
+  <link rel="stylesheet" href="./css/style.css">
+  <link href="https://fonts.googleapis.com/css?family=Playfair+Display:700,900&display=swap" rel="stylesheet">
   <title>Andrea Violato</title>
 </head>
 <body>
-<main class="container">
-  <div class="p-4 p-md-5 mb-4 rounded text-body-emphasis bg-body-secondary">
-    <div class="col-lg-6 px-0">
-      <h1 class="display-4 fst-italic">Andrea Violato</h1>
-      <p class="lead my-3">Personal page</p>
-    </div>
-  </div>
-  <div class="row g-5">
-    <div class="col-md-8">
-      <h3 class="pb-4 mb-4 fst-italic border-bottom">Interesting readings</h3>
-      
-      <!-- Qui compariranno i post -->
-      <div id="posts">
-        <p><em>Loading posts...</em></p>
-      </div>
-      
-    </div>
-    <div class="col-md-4">
-      <div class="position-sticky" style="top: 2rem">
-        <div class="p-4 mb-3 bg-body-tertiary rounded">
-          <h4 class="fst-italic">About</h4>
-          <p class="mb-0">Scrum product owner, technological project manager, tech enthusiast.</p>
-          <p class="mb-0">I love to read about technology, compliance, and management.</p>
-          <p class="mb-0">Father of two, husband of one.</p>
+  <main class="container">
+    <header class="hero">
+      <h1>Andrea Violato</h1>
+      <p class="subtitle">In this space, you will find a collection of content about <strong>technology</strong>, <strong>compliance</strong>, and <strong>management</strong> that I found interesting, sometimes with a few small comments.</p>
+    </header>
+    
+    <div class="content">
+      <section class="posts">
+        <h3>Interesting readings</h3>
+        <div id="posts">
+          <p><em>Loading posts...</em></p>
         </div>
-        <div class="p-4">
-          <h4 class="fst-italic">Elsewhere</h4>
-          <ol class="list-unstyled">
+      </section>
+      
+      <aside class="sidebar">
+        <div class="about">
+          <h4>About</h4>
+          <p>Scrum product owner, technological project manager, tech enthusiast.</p>
+          <p>Father of two, husband of one.</p>
+        </div>
+        
+        <div class="elsewhere">
+          <h4>Elsewhere</h4>
+          <ul>
             <li><a href="https://github.com/viula">GitHub</a></li>
             <li><a href="mailto:odgxa5p0z@mozmail.com">Mail</a></li>
-          </ol>
+          </ul>
         </div>
-      </div>
+      </aside>
     </div>
-  </div>
-</main>
+  </main>
 
-<script src="./js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script>
-  const user = "viula";        // il tuo username GitHub
-  const repo = "viula.github.io";     // nome del repo
-  const path = "posts";        // cartella dove sono i file
+  <footer>
+    hosted on <a href="https://pages.github.com/">GitHub pages</a>
+  </footer>
 
-  fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`)
-    .then(response => response.json())
-    .then(files => {
-      const container = document.getElementById("posts");
-      container.innerHTML = "";
-
-      files
-        .filter(f => f.name.endsWith(".md"))
-        .sort((a, b) => b.name.localeCompare(a.name)) // più recente prima
-        .forEach(file => {
-          fetch(file.download_url)
-            .then(r => r.text())
-            .then(md => {
-              const article = document.createElement("article");
-              article.className = "blog-post mb-5";
-              article.innerHTML = marked.parse(md);
-              container.appendChild(article);
-            });
-        });
-    })
-    .catch(err => console.error("Errore API GitHub", err));
-</script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="./js/main.js"></script>
 </body>
-<footer class="container text-center mt-5 mb-3">
-  credits: <a href="https://getbootstrap.com/docs/5.3/examples/blog/">Bootstrap blog example</a> |
-  hosted on <a href="https://pages.github.com/">GitHub pages</a>
-</footer>
 </html>

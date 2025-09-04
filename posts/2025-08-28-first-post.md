@@ -2,6 +2,8 @@
 
 **28 August 2025 by Andrea**
 
+##### privacy | hacking | vim | management 
+
 Hello!
 
 Let's start with some summer reading that I think might be of interest:
