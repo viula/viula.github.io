@@ -22,8 +22,3 @@ fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`)
           });
       });
   })
-<<<<<<< HEAD
-  .catch(err => console.error("GitHub API Error", err));
-=======
-  .catch(err => console.error("GitHub API Error", err));
->>>>>>> 8ce18107cbc6c357e4825983f7b72c8f505659d6
