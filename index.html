@@ -1,50 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="./css/style.css">
-  <link href="https://fonts.googleapis.com/css?family=Playfair+Display:700,900&display=swap" rel="stylesheet">
-  <title>Andrea Violato</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tassonomia ACN – Viewer</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
-  <main class="container">
-    <header class="hero">
-      <h1>Andrea Violato</h1>
-      <p class="subtitle">In this space, you will find a collection of content about <strong>technology</strong>, <strong>compliance</strong>, and <strong>management</strong> that I found interesting, sometimes with a few small comments.</p>
-    </header>
-    
-    <div class="content">
-      <section class="posts">
-        <h3>Interesting readings</h3>
-        <div id="posts">
-          <p><em>Loading posts...</em></p>
-        </div>
-      </section>
-      
-      <aside class="sidebar">
-        <div class="about">
-          <h4>About</h4>
-          <p>Scrum product owner, technological project manager, tech enthusiast.</p>
-          <p>Father of two, husband of one.</p>
-        </div>
-        
-        <div class="elsewhere">
-          <h4>Elsewhere</h4>
-          <ul>
-            <li><a href="https://github.com/viula">GitHub</a></li>
-            <li><a href="mailto:odgxa5p0z@mozmail.com">Mail</a></li>
-          </ul>
-        </div>
-      </aside>
+  <header class="app-header">
+    <h1>Visualizzatore Tassonomia ACN</h1>
+    <div class="meta">
+      <span class="badge">TC‑ACN</span>
     </div>
+  </header>
+
+  <main class="content">
+    <!-- ===================== TABS MACROCATEGORIE ===================== -->
+    <nav id="macroTabs" class="macro-tabs" role="tablist" aria-label="Macrocategorie ACN"></nav>
+
+    <!-- ===================== CONTENUTO DELLA TAB ===================== -->
+    <section id="tabContent" class="tab-content" aria-live="polite"></section>
   </main>
 
-  <footer>
-    hosted on <a href="https://pages.github.com/">GitHub pages</a>
+  <footer class="app-footer">
+    <small>ACN + MITRE ATT&CK + NVD CVE + Kill Chain – Viewer Offline</small>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="./js/main.js"></script>
+  <!-- JS -->
+  <script src="app.js"></script>
 </body>
 </html>

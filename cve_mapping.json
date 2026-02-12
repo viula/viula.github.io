@@ -1,0 +1,53 @@
+{
+  "impact": { "cve": [] },
+  "root-cause": { "cve": [] },
+  "severity": { "cve": [] },
+  "victim-geography": { "cve": [] },
+
+  "active-scanning": {
+    "cve": ["CVE-2023-34362"]
+  },
+
+  "availability": {
+    "cve": ["CVE-2021-44228", "CVE-2024-4577"]
+  },
+
+  "brand-abuse": { "cve": [] },
+
+  "fraud": { "cve": [] },
+
+  "data-exposure": {
+    "cve": ["CVE-2023-50164", "CVE-2020-3452"]
+  },
+
+  "information-gathering": {
+    "cve": ["CVE-2021-41773"]
+  },
+
+  "malicious-code": {
+    "cve": ["CVE-2017-11882", "CVE-2021-40444"]
+  },
+
+  "social-engineering": { "cve": [] },
+
+  "vulnerability": {
+    "cve": ["CVE-2024-3094", "CVE-2023-4863", "CVE-2022-22965"]
+  },
+
+  "adversary-motivation": { "cve": [] },
+  "adversary-type": { "cve": [] },
+
+  "abusive-content": { "cve": [] },
+
+  "asset-source-geography": { "cve": [] },
+
+  "involved-asset": { "cve": [] },
+
+  "outlook": { "cve": [] },
+
+  "physical-security": { "cve": [] },
+
+  "vector": {
+    "cve": ["CVE-2022-30190", "CVE-2018-8174"]
+  }
+}

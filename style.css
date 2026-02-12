@@ -1,0 +1,256 @@
+/* ============================================================
+   VARIABLES
+============================================================ */
+:root {
+  --bg: #f6f8fb;
+  --panel: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --primary: #0b5cab;
+  --primary-100: #e6f2ff;
+  --primary-200: #cfe5ff;
+  --border: #e5e7eb;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ============================================================
+   HEADER
+============================================================ */
+.app-header {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.badge {
+  background: var(--primary-200);
+  color: var(--primary);
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ============================================================
+   CONTENT WRAPPER
+============================================================ */
+.content {
+  max-width: auto; /*1100px;*/
+  margin: 0 auto;
+  padding: 18px;
+}
+
+/* ============================================================
+   TABS (MACROCATEGORIE)
+============================================================ */
+.macro-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.macro-tab {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.macro-tab[aria-selected="true"] {
+  background: var(--primary-200);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* ============================================================
+   TAB CONTENT
+============================================================ */
+.tab-content {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+/* ============================================================
+   ACCORDION (PREDICATI)
+============================================================ */
+.pred-section {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.pred-header {
+  width: 100%;
+  appearance: none;
+  border: 0;
+  background: #f9fafb;
+  color: var(--text);
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.pred-header:hover {
+  background: var(--primary-100);
+}
+.pred-header .chevron {
+  transition: transform .2s ease;
+}
+.pred-header[aria-expanded="true"] .chevron {
+  transform: rotate(90deg);
+}
+
+.pred-panel {
+  display: none;
+  padding: 14px;
+  border-top: 1px solid var(--border);
+  background: #fff;
+}
+.pred-panel.open {
+  display: block;
+}
+
+.count-badge {
+  display: inline-block;
+  min-width: 22px;
+  padding: 2px 6px;
+  margin-left: 8px;
+  border-radius: 999px;
+  background: var(--primary-200);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* ============================================================
+   PREDICATE SUMMARY (SINTESI)
+============================================================ */
+.predicate-summary {
+  background: #fcfdff;
+  border: 2px solid var(--primary-200);
+  padding: 14px 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+.predicate-summary h3 {
+  margin: 0 0 6px 0;
+  color: var(--primary);
+  font-size: 18px;
+}
+.predicate-summary .macro {
+  color: var(--muted);
+  font-size: 13px;
+}
+.predicate-summary .badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.summary-badge {
+  background: var(--primary-200);
+  color: var(--primary);
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+}
+.summary-badge.cve { background: #ffd6d6; color: #b80000; }
+.summary-badge.kc  { background: #d9f2d9; color: #006600; }
+
+/* ============================================================
+   PREDICATE INFO (MITRE / CVE / KILLCHAIN)
+============================================================ */
+.predicate-info {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 14px;
+  margin-bottom: 16px;
+}
+.predicate-info .info-block {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+.predicate-info .info-block:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+.info-block h4 {
+  margin: 0 0 6px 0;
+  font-size: 15px;
+}
+.info-block.mitre h4 { color: var(--primary); }
+.info-block.cve h4 { color: #b30000; }
+.info-block.killchain h4 { color: #006600; }
+.info-block ul { list-style: none; padding: 0; margin: 0; }
+.info-block li { margin: 4px 0; }
+
+/* ============================================================
+   VALUE CARDS (entry)
+============================================================ */
+.values {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+.value-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+  position: relative;
+}
+.value-card h3 { margin: 0; font-size: 16px; }
+.value-meta { margin-top: 6px; font-size: 13px; color: var(--muted); }
+.value-desc { margin-top: 8px; }
+
+/* ============================================================
+   FOOTER
+============================================================ */
+.app-footer {
+  margin-top: 18px;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  padding: 10px 16px;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width: 840px) {
+  .values { grid-template-columns: 1fr; }
+}

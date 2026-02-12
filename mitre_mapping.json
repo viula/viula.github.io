@@ -1,0 +1,163 @@
+{
+    "impact": {
+        "core": [],
+        "related": []
+    },
+    "root-cause": {
+        "core": [],
+        "related": []
+    },
+    "severity": {
+        "core": [],
+        "related": []
+    },
+    "victim-geography": {
+        "core": [],
+        "related": []
+    },
+    "active-scanning": {
+        "core": [
+            "T1595",
+            "T1595.001",
+            "T1595.002",
+            "T1046",
+            "T1040"
+        ],
+        "related": [
+            "T1590",
+            "T1590.001",
+            "T1590.002",
+            "T1592",
+            "T1592.001"
+        ]
+    },
+    "availability": {
+        "core": [
+            "T1498",
+            "T1498.001",
+            "T1499",
+            "T1499.004"
+        ],
+        "related": [
+            "T1496"
+        ]
+    },
+    "brand-abuse": {
+        "core": [],
+        "related": [
+            "T1583",
+            "T1583.001",
+            "T1583.002",
+            "T1585",
+            "T1585.002"
+        ]
+    },
+    "fraud": {
+        "core": [],
+        "related": [
+            "T1585",
+            "T1586"
+        ]
+    },
+    "data-exposure": {
+        "core": [
+            "T1530",
+            "T1552",
+            "T1552.001"
+        ],
+        "related": [
+            "T1041",
+            "T1020"
+        ]
+    },
+    "information-gathering": {
+        "core": [
+            "T1590",
+            "T1590.001",
+            "T1590.002",
+            "T1592",
+            "T1592.001"
+        ],
+        "related": [
+            "T1589",
+            "T1589.001"
+        ]
+    },
+    "malicious-code": {
+        "core": [
+            "T1059",
+            "T1059.001",
+            "T1059.003",
+            "T1204",
+            "T1204.002"
+        ],
+        "related": [
+            "T1027",
+            "T1027.002",
+            "T1055",
+            "T1055.001"
+        ]
+    },
+    "social-engineering": {
+        "core": [
+            "T1566",
+            "T1566.001",
+            "T1566.002"
+        ],
+        "related": [
+            "T1598",
+            "T1598.003"
+        ]
+    },
+    "vulnerability": {
+        "core": [
+            "T1203",
+            "T1203.001",
+            "T1190"
+        ],
+        "related": [
+            "T1211",
+            "T1068"
+        ]
+    },
+    "adversary-motivation": {
+        "core": [],
+        "related": []
+    },
+    "adversary-type": {
+        "core": [],
+        "related": []
+    },
+    "abusive-content": {
+        "core": [],
+        "related": []
+    },
+    "asset-source-geography": {
+        "core": [],
+        "related": []
+    },
+    "involved-asset": {
+        "core": [],
+        "related": []
+    },
+    "outlook": {
+        "core": [],
+        "related": []
+    },
+    "physical-security": {
+        "core": [],
+        "related": [
+            "T1195"
+        ]
+    },
+    "vector": {
+        "core": [
+            "T1566",
+            "T1189"
+        ],
+        "related": [
+            "T1200",
+            "T1105"
+        ]
+    }
+}

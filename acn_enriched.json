@@ -1,0 +1,60 @@
+{
+  "macro_categories": {
+    "BC": {
+      "name": "Baseline Characterization",
+      "predicates": ["impact", "root-cause", "severity", "victim-geography"]
+    },
+    "TT": {
+      "name": "Threat Type",
+      "predicates": [
+        "active-scanning",
+        "availability",
+        "brand-abuse",
+        "fraud",
+        "data-exposure",
+        "information-gathering",
+        "malicious-code",
+        "social-engineering",
+        "vulnerability"
+      ]
+    },
+    "TA": {
+      "name": "Threat Actor",
+      "predicates": ["adversary-motivation", "adversary-type"]
+    },
+    "AC": {
+      "name": "Additional Context",
+      "predicates": [
+        "abusive-content",
+        "asset-source-geography",
+        "involved-asset",
+        "outlook",
+        "physical-security",
+        "vector"
+      ]
+    }
+  },
+  "predicate_to_macro": {
+    "impact": "BC",
+    "root-cause": "BC",
+    "severity": "BC",
+    "victim-geography": "BC",
+    "active-scanning": "TT",
+    "availability": "TT",
+    "brand-abuse": "TT",
+    "fraud": "TT",
+    "data-exposure": "TT",
+    "information-gathering": "TT",
+    "malicious-code": "TT",
+    "social-engineering": "TT",
+    "vulnerability": "TT",
+    "adversary-motivation": "TA",
+    "adversary-type": "TA",
+    "abusive-content": "AC",
+    "asset-source-geography": "AC",
+    "involved-asset": "AC",
+    "outlook": "AC",
+    "physical-security": "AC",
+    "vector": "AC"
+  }
+}
