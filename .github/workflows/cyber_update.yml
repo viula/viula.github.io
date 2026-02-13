@@ -1,0 +1,31 @@
+name: Cyber Data Auto-Update
+on:
+  schedule:
+    - cron: '0 0 * * *' # Gira ogni notte a mezzanotte
+  workflow_dispatch: # Permette di avviarlo a mano per test
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Update Mappings
+        run: python update_mappings.py
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name 'Cyber-Update-Bot'
+          git config --global user.email 'bot@noreply.github.com'
+          git add cve_mapping.json mitre_mapping.json
+          git commit -m "Auto-update: Nuove CVE e mapping MITRE" || exit 0
+          git push

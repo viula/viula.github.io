@@ -276,14 +276,16 @@ function buildMitreBlock(predicate) {
 
 function buildCveBlock(predicate) {
   const entry = cve[predicate];
-  if (!entry || !Array.isArray(entry.cve) || entry.cve.length === 0) return null;
+  if (!entry || !entry.cve || entry.cve.length === 0) {
+      return `<div class="info-block cve"><h4>CVE</h4><p style="color:var(--muted); font-size:12px;">Nessuna CVE critica recente trovata nel database attivo.</p></div>`;
+  }
 
-  let html = `<h4>Vulnerabilità CVE correlate</h4><ul>`;
+  let html = `<div class="info-block cve"><h4>Vulnerabilità CVE correlate</h4><ul>`;
   entry.cve.forEach(id => {
-    const url = `https://nvd.nist.gov/vuln/detail/${encodeURIComponent(id)}`;
+    const url = `https://nvd.nist.gov/vuln/detail/${id}`;
     html += `<li><a href="${url}" target="_blank" rel="noopener noreferrer">${escapeHTML(id)}</a></li>`;
   });
-  html += `</ul>`;
+  html += `</ul></div>`;
   return html;
 }
 
