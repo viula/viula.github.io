@@ -187,15 +187,31 @@ function buildSummaryHTML(pred) {
 function buildMitreBlock(predicate) {
   const data = mitreEnriched[predicate];
   if (!data) return null;
-  // Supporta sia il formato vecchio (stringhe) che quello nuovo (oggetti con .name)
+
   const renderItem = (t) => {
     const id = typeof t === 'string' ? t : t.id;
-    const name = typeof t === 'string' ? "" : ` - ${t.name}`;
-    return `<li><strong>${id}</strong>${name}</li>`;
+    const name = typeof t === 'string' ? "" : ` - ${escapeHTML(t.name)}`;
+    
+    // Generazione URL dinamico per MITRE ATT&CK
+    // Se l'ID è T1566.001, diventa T1566/001/
+    const urlParts = id.split('.');
+    const mitreUrl = urlParts.length > 1 
+      ? `https://attack.mitre.org/techniques/${urlParts[0]}/${urlParts[1]}/` 
+      : `https://attack.mitre.org/techniques/${urlParts[0]}/`;
+
+    return `<li>
+              <a href="${mitreUrl}" target="_blank" rel="noopener noreferrer">
+                <strong>${escapeHTML(id)}</strong>
+              </a>${name}
+            </li>`;
   };
+
   const core = (data.core || []).map(renderItem).join("");
   const related = (data.related || []).map(renderItem).join("");
-  return (core || related) ? `<div class="info-block mitre"><h4>Tecniche MITRE</h4><ul>${core}${related}</ul></div>` : null;
+
+  return (core || related) 
+    ? `<div class="info-block mitre"><h4>Tecniche MITRE</h4><ul>${core}${related}</ul></div>` 
+    : null;
 }
 
 function buildCveBlock(predicate) {
