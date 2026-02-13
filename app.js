@@ -281,3 +281,52 @@ function setupSearch() {
     }
   });
 }
+
+function showRelationMatrix() {
+  const container = document.getElementById("tabContent");
+  // Nascondiamo la vista tab standard
+  container.innerHTML = `
+    <div class="matrix-container">
+      <h2 style="margin-top:0">Mappa delle Relazioni ACN</h2>
+      <p>Questa vista correla i Vettori alle Minacce e alla Kill Chain.</p>
+      
+      <div style="display: flex; justify-content: space-between; gap: 20px;">
+        <div class="node-column" id="col-vectors"><h4>Vettori (Inizio)</h4></div>
+        <div class="node-column" id="col-threats"><h4>Minacce (Esecuzione)</h4></div>
+        <div class="node-column" id="col-killchain"><h4>Kill Chain (Fase)</h4></div>
+        <div class="node-column" id="col-impact"><h4>Impatto (Fine)</h4></div>
+      </div>
+    </div>
+  `;
+
+  // 1. Popola Vettori (dal predicato 'vector')
+  const vectorEntries = acn.values.find(v => v.predicate === 'vector')?.entry || [];
+  renderNodes('col-vectors', vectorEntries, '#3b82f6');
+
+  // 2. Popola Minacce (tutti i predicati della macro TT)
+  const ttPredicates = enriched.macro_categories['TT'].predicates;
+  const threatNodes = acn.predicates.filter(p => ttPredicates.includes(p.value));
+  renderNodes('col-threats', threatNodes, '#8b5cf6');
+
+  // 3. Popola fasi Kill Chain uniche
+  const phases = [...new Set(Object.values(killchain))].filter(p => p !== "None");
+  renderNodes('col-killchain', phases.map(p => ({expanded: p})), '#10b981');
+
+  // 4. Popola Impatti (macro BC)
+  const bcPredicates = enriched.macro_categories['BC'].predicates;
+  const impactNodes = acn.predicates.filter(p => bcPredicates.includes(p.value));
+  renderNodes('col-impact', impactNodes, '#ef4444');
+}
+
+function renderNodes(columnId, items, color) {
+  const col = document.getElementById(columnId);
+  items.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "relation-node";
+    div.style.borderLeft = `4px solid ${color}`;
+    div.textContent = item.expanded;
+    // Effetto interattivo: evidenzia relazioni
+    div.onclick = () => highlightConnections(item);
+    col.appendChild(div);
+  });
+}

@@ -107,6 +107,45 @@ body {
   color: var(--primary);
 }
 
+.macro-tab.special {
+  background: #1f2937;
+  color: #fff;
+  border-color: #111827;
+}
+
+.matrix-container {
+  background: #0f172a; /* Sfondo scuro tipo terminale */
+  border-radius: 12px;
+  padding: 20px;
+  min-height: 600px;
+  position: relative;
+  overflow: hidden;
+  color: #e2e8f0;
+}
+
+.node-column {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 2;
+}
+
+/* Stile per i nodi del grafo */
+.relation-node {
+  padding: 8px 12px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.relation-node:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 10px var(--primary);
+}
+
 /* ============================================================
    TAB CONTENT
 ============================================================ */

@@ -21,6 +21,14 @@
 </header>
 
   <main class="content">
+    <nav id="macroTabs" class="macro-tabs">
+      <button class="macro-tab special" onclick="showRelationMatrix()">📊 Matrice Relazioni</button>
+    </nav>
+
+    <div id="matrixView" class="matrix-container" style="display:none;">
+      <canvas id="relationCanvas"></canvas>
+      <div id="matrixLegend"></div>
+    </div>
     <!-- ===================== TABS MACROCATEGORIE ===================== -->
     <nav id="macroTabs" class="macro-tabs" role="tablist" aria-label="Macrocategorie ACN"></nav>
 
