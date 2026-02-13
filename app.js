@@ -339,15 +339,61 @@ function showRelationMatrix() {
   renderNodes('col-impact', impactNodes, '#ef4444');
 }
 
-function renderNodes(columnId, items, color) {
+function renderNodes(columnId, items, color, predicateValue = null) {
   const col = document.getElementById(columnId);
   items.forEach(item => {
     const div = document.createElement("div");
     div.className = "relation-node";
     div.style.borderLeft = `4px solid ${color}`;
+    
+    // Salviamo i metadati nel DOM per poterli filtrare dopo
+    const val = item.value || item.expanded.toLowerCase().replace(/\s+/g, '-');
+    div.dataset.id = val;
+    div.dataset.predicate = predicateValue || "";
+    
     div.textContent = item.expanded;
-    // Effetto interattivo: evidenzia relazioni
-    div.onclick = () => highlightConnections(item);
+
+    // EVENTI MOUSE
+    div.onmouseenter = () => highlightConnections(val, predicateValue);
+    div.onmouseleave = () => resetConnections();
+
     col.appendChild(div);
+  });
+}
+
+function highlightConnections(id, predicate) {
+  const allNodes = document.querySelectorAll('.relation-node');
+  allNodes.forEach(n => n.style.opacity = "0.2"); // Oscura tutto
+
+  // 1. Evidenzia il nodo selezionato
+  const activeNode = document.querySelector(`.relation-node[data-id="${id}"]`);
+  if (activeNode) activeNode.style.opacity = "1";
+
+  // 2. LOGICA DI COLLEGAMENTO (Esempio basato su Kill Chain)
+  // Se è una minaccia (TT), evidenzia la sua fase Kill Chain
+  if (killchain[id]) {
+    const kcPhase = killchain[id].toLowerCase().replace(/\s+/g, '-');
+    const phaseNode = document.querySelector(`.relation-node[data-id="${kcPhase}"]`);
+    if (phaseNode) phaseNode.style.opacity = "1";
+  }
+
+  // 3. LOGICA BASATA SU MITRE (Se condividono tecniche simili)
+  const currentMitre = mitreEnriched[id]?.core.map(t => t.id) || [];
+  if (currentMitre.length > 0) {
+    allNodes.forEach(node => {
+      const nodeMitre = mitreEnriched[node.dataset.id]?.core.map(t => t.id) || [];
+      // Se condividono almeno una tecnica MITRE, evidenziali
+      if (nodeMitre.some(t => currentMitre.includes(t))) {
+        node.style.opacity = "1";
+        node.style.borderColor = "var(--primary)";
+      }
+    });
+  }
+}
+
+function resetConnections() {
+  document.querySelectorAll('.relation-node').forEach(n => {
+    n.style.opacity = "1";
+    n.style.borderColor = "#334155"; // Colore bordo originale
   });
 }
