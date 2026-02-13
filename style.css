@@ -185,6 +185,26 @@ body {
 .summary-badge.cve { background: #ffd6d6; color: #b80000; }
 .summary-badge.kc  { background: #d9f2d9; color: #006600; }
 
+.badge-kev {
+  background-color: #b30000;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  text-transform: uppercase;
+  vertical-align: middle;
+  display: inline-block;
+  animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+  0% { box-shadow: 0 0 0 0 rgba(179, 0, 0, 0.7); }
+  70% { box-shadow: 0 0 0 6px rgba(179, 0, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(179, 0, 0, 0); }
+}
+
 /* ============================================================
    PREDICATE INFO (MITRE / CVE / KILLCHAIN)
 ============================================================ */

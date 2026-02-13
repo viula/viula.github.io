@@ -1,13 +1,14 @@
 /* ============================================================
-   ACN + MITRE + CVE + KILLCHAIN VIEWER
+   ACN + MITRE ENRICHED + CVE KEV + KILLCHAIN VIEWER
    - Tabs (macrocategorie) nel corpo centrale
-   - Accordion (predicati) single-open (Opzione A)
+   - Accordion (predicati) con Badge KEV dinamici
 ============================================================ */
 
 let acn = null;
 let enriched = null;
-let mitre = null;
+let mitreEnriched = null; // Mapping con nomi tecniche
 let cve = null;
+let kevList = []; // Lista delle CVE sfruttate attivamente (CISA KEV)
 let killchain = null;
 
 // Modalità accordion: solo UNA sezione aperta per volta
@@ -17,17 +18,39 @@ const SINGLE_OPEN_MODE = true;
    LOAD JSON FILES
 ---------------------------- */
 async function loadData() {
-  acn = await fetch("machinetag.json").then(r => r.json());
-  enriched = await fetch("acn_enriched.json").then(r => r.json());
-  mitre = await fetch("mitre_mapping.json").then(r => r.json());
-  cve = await fetch("cve_mapping.json").then(r => r.json());
-  killchain = await fetch("killchain_mapping.json").then(r => r.json());
+  try {
+    // Caricamento parallelo di tutti i file (inclusi i nuovi arricchiti)
+    const [acnRes, enrichedRes, mitreRes, cveRes, kevRes, killchainRes] = await Promise.all([
+      fetch("machinetag.json").then(r => r.json()),
+      fetch("acn_enriched.json").then(r => r.json()),
+      fetch("mitre_mapping_enriched.json").then(r => r.json()),
+      fetch("cve_mapping.json").then(r => r.json()),
+      fetch("cisa_kev_list.json").then(r => r.json()).catch(() => []), // Fallback se il bot non ha ancora girato
+      fetch("killchain_mapping.json").then(r => r.json())
+    ]);
 
-  buildMacroTabs();
-  // Seleziona la prima macro di default
-  const firstMacro = ["BC","TT","TA","AC"][0];
-  selectMacroTab(firstMacro);
+    acn = acnRes;
+    enriched = enrichedRes;
+    mitreEnriched = mitreRes;
+    cve = cveRes;
+    kevList = kevRes;
+    killchain = killchainRes;
+
+    buildMacroTabs();
+    // Seleziona la prima macro di default (Baseline Characterization)
+    const firstMacro = Object.keys(enriched.macro_categories)[0] || "BC";
+    selectMacroTab(firstMacro);
+    
+  } catch (error) {
+    console.error("Errore nel caricamento dei dati:", error);
+    document.getElementById("tabContent").innerHTML = `
+      <div style="padding:20px; color:#b30000;">
+        <h3>Errore di caricamento</h3>
+        <p>Assicurati che i file JSON siano presenti nel repository e che le GitHub Actions abbiano girato correttamente.</p>
+      </div>`;
+  }
 }
+
 loadData();
 
 /* ============================================================
@@ -40,6 +63,7 @@ function buildMacroTabs() {
   const order = ["BC","TT","TA","AC"];
   order.forEach(code => {
     const macro = enriched.macro_categories[code];
+    if (!macro) return;
     const btn = document.createElement("button");
     btn.className = "macro-tab";
     btn.type = "button";
@@ -53,26 +77,19 @@ function buildMacroTabs() {
 }
 
 function selectMacroTab(code) {
-  // evidenzia tab
   document.querySelectorAll(".macro-tab").forEach(b => {
     b.setAttribute("aria-selected", b.dataset.macro === code ? "true" : "false");
   });
 
-  // costruisci contenuto della tab
   const container = document.getElementById("tabContent");
   container.innerHTML = "";
 
   const predKeys = enriched.macro_categories[code].predicates;
   const preds = acn.predicates.filter(p => predKeys.includes(p.value));
 
-  // Accordion: una sezione per predicato
   preds.forEach(pred => {
     container.appendChild(buildPredicateSection(pred));
   });
-
-  // Apri la prima sezione per comodità (se esiste)
-//   const firstHeader = container.querySelector(".pred-header");
-//   if (firstHeader) firstHeader.click();
 }
 
 /* ============================================================
@@ -81,41 +98,35 @@ function selectMacroTab(code) {
 function buildPredicateSection(pred) {
   const section = document.createElement("section");
   section.className = "pred-section";
-  section.dataset.predicate = pred.value;
-  const subset = acn.values.find(v => v.predicate === pred.value);
-  const entryCount = subset?.entry?.length || 0;
+  
+  // Trova i valori nel machinetag
+  const entries = pred.entries || []; 
+  const entryCount = entries.length;
 
-  // Header
   const header = document.createElement("button");
   header.className = "pred-header";
   header.type = "button";
   header.setAttribute("aria-expanded", "false");
   header.innerHTML = `
     <span>
-		${pred.expanded}
-		<span class="count-badge" aria-label="Numero di valori">${entryCount}</span>
-	</span>
+      ${escapeHTML(pred.expanded)}
+      <span class="count-badge">${entryCount}</span>
+    </span>
     <span class="chevron">▶</span>
   `;
 
-  // Panel (collassabile)
   const panel = document.createElement("div");
   panel.className = "pred-panel";
   panel.hidden = true;
 
-  // Click = toggle (single-open se abilitatO)
   header.addEventListener("click", () => {
     const isOpen = header.getAttribute("aria-expanded") === "true";
     if (SINGLE_OPEN_MODE) {
-      // Chiudi tutti gli altri della stessa tab
       header.closest(".tab-content")
         .querySelectorAll(".pred-header[aria-expanded='true']")
-        .forEach(h => {
-          if (h !== header) togglePredicate(h, false);
-        });
+        .forEach(h => { if (h !== header) togglePredicate(h, false); });
     }
     togglePredicate(header, !isOpen);
-    // Lazy render: se pannello appena aperto e vuoto, render contenuti
     if (!isOpen && panel.dataset.rendered !== "true") {
       renderPredicatePanel(pred, panel);
       panel.dataset.rendered = "true";
@@ -130,160 +141,103 @@ function buildPredicateSection(pred) {
 function togglePredicate(header, open) {
   header.setAttribute("aria-expanded", open ? "true" : "false");
   const panel = header.nextElementSibling;
-  if (!panel) return;
-  if (open) {
-    panel.hidden = false;
-    panel.classList.add("open");
-  } else {
-    panel.classList.remove("open");
-    // Per mantenere lo stato "lazy", non svuoto l'HTML: nascondo soltanto
-    panel.hidden = true;
-  }
+  if (open) { panel.hidden = false; panel.classList.add("open"); }
+  else { panel.classList.remove("open"); panel.hidden = true; }
 }
 
 /* ============================================================
-   RENDER CONTENUTO SEZIONE PREDICATO
-   (summary + info + values)
+   RENDER PANEL CONTENT
 ============================================================ */
 function renderPredicatePanel(pred, panel) {
-  panel.innerHTML = ""; // sicurezza
+  panel.innerHTML = "";
 
-  const subset = acn.values.find(v => v.predicate === pred.value);
-  const entryCount = subset?.entry?.length || 0;
-
-  // SUMMARY
+  // Summary section
   const summary = document.createElement("div");
   summary.className = "predicate-summary";
-  summary.innerHTML = buildSummaryHTML(pred, subset);
+  summary.innerHTML = buildSummaryHTML(pred);
   panel.appendChild(summary);
 
-  // INFO (MITRE / CVE / KC) — SOLO SE CI SONO DATI
+  // Info Blocks (MITRE, CVE con KEV, KillChain)
   const info = document.createElement("section");
   info.className = "predicate-info";
 
-  const mitreBlock = buildMitreBlock(pred.value);
-  if (mitreBlock) {
-    const wrap = document.createElement("div");
-    wrap.className = "info-block mitre";
-    wrap.innerHTML = mitreBlock;
-    info.appendChild(wrap);
-  }
+  const mBlock = buildMitreBlock(pred.value);
+  if (mBlock) info.insertAdjacentHTML('beforeend', mBlock);
 
-  const cveBlock = buildCveBlock(pred.value);
-  if (cveBlock) {
-    const wrap = document.createElement("div");
-    wrap.className = "info-block cve";
-    wrap.innerHTML = cveBlock;
-    info.appendChild(wrap);
-  }
+  const cBlock = buildCveBlock(pred.value);
+  if (cBlock) info.insertAdjacentHTML('beforeend', cBlock);
 
-  const kcBlock = buildKillChainBlock(pred.value);
-  if (kcBlock) {
-    const wrap = document.createElement("div");
-    wrap.className = "info-block killchain";
-    wrap.innerHTML = kcBlock;
-    info.appendChild(wrap);
-  }
+  const kBlock = buildKillChainBlock(pred.value);
+  if (kBlock) info.insertAdjacentHTML('beforeend', kBlock);
 
   if (info.children.length > 0) panel.appendChild(info);
 
-  // VALUES (cards)
-  if (entryCount > 0) {
-    const values = document.createElement("div");
-    values.className = "values";
-    subset.entry.forEach(val => {
+  // Entries (Values)
+  if (pred.entries && pred.entries.length > 0) {
+    const valuesDiv = document.createElement("div");
+    valuesDiv.className = "values";
+    pred.entries.forEach(val => {
       const card = document.createElement("div");
       card.className = "value-card";
       if (val.colour) card.style.borderLeft = `6px solid ${val.colour}`;
       card.innerHTML = `
         <h3>${escapeHTML(val.expanded)}</h3>
-        <div class="value-meta">
-          Codice: ${escapeHTML(val.value)}<br>
-          UUID: ${escapeHTML(val.uuid || "—")}
-        </div>
-        <div class="value-desc">${escapeHTML(val.description || "")}</div>
+        <div class="value-meta">Codice: ${escapeHTML(val.value)}</div>
+        <div class="value-desc">${escapeHTML(val.description || "Nessuna descrizione disponibile.")}</div>
       `;
-      values.appendChild(card);
+      valuesDiv.appendChild(card);
     });
-    panel.appendChild(values);
+    panel.appendChild(valuesDiv);
   }
 }
 
 /* ============================================================
-   SUMMARY (HTML)
+   BUILDERS
 ============================================================ */
-function buildSummaryHTML(pred, subset) {
+function buildSummaryHTML(pred) {
   const macro = enriched.predicate_to_macro[pred.value];
-  const macroName = enriched.macro_categories[macro]?.name || macro || "-";
-  const entryCount = subset?.entry?.length || 0;
-
-  const hasMitre = !!(mitre[pred.value] &&
-    ((mitre[pred.value].core?.length || 0) > 0 ||
-     (mitre[pred.value].related?.length || 0) > 0));
-
-  const hasCVE = !!(cve[pred.value] &&
-    Array.isArray(cve[pred.value].cve) &&
-    cve[pred.value].cve.length > 0);
-
-  const kcPhase = killchain[pred.value] || null;
-
-  const badges = [];
-  if (hasMitre) badges.push(`<div class="summary-badge mitre">MITRE ✓</div>`);
-  if (hasCVE)   badges.push(`<div class="summary-badge cve">CVE ✓</div>`);
-  if (kcPhase)  badges.push(`<div class="summary-badge kc">KillChain: ${escapeHTML(kcPhase)}</div>`);
+  const macroName = enriched.macro_categories[macro]?.name || "N/A";
+  const kcPhase = killchain[pred.value];
 
   return `
     <h3>${escapeHTML(pred.expanded)}</h3>
-    <div class="macro">Macrocategoria: <strong>${escapeHTML(macroName)} (${escapeHTML(macro || "–")})</strong></div>
-    <div class="macro">Valori: <strong>${entryCount}</strong></div>
-    <div class="badges">${badges.join("")}</div>
+    <div class="macro">Macrocategoria: <strong>${escapeHTML(macroName)}</strong></div>
+    <div class="badges">
+      ${mitreEnriched[pred.value] ? '<span class="summary-badge mitre">MITRE ✓</span>' : ''}
+      ${cve[pred.value]?.cve?.length > 0 ? '<span class="summary-badge cve">CVE ✓</span>' : ''}
+      ${kcPhase ? `<span class="summary-badge kc">KillChain: ${escapeHTML(kcPhase)}</span>` : ''}
+    </div>
   `;
 }
 
-/* ============================================================
-   INFO BLOCKS BUILDERS (return HTML string or null)
-============================================================ */
 function buildMitreBlock(predicate) {
-  const map = mitre[predicate];
-  if (!map) return null;
+  const data = mitreEnriched[predicate];
+  if (!data || (data.core.length === 0 && data.related.length === 0)) return null;
 
-  const hasCore = Array.isArray(map.core) && map.core.length > 0;
-  const hasRelated = Array.isArray(map.related) && map.related.length > 0;
-  if (!hasCore && !hasRelated) return null;
+  const renderTechs = (list) => list.map(t => 
+    `<li><a href="https://attack.mitre.org/techniques/${t.id.split('.')[0]}/" target="_blank"><strong>${escapeHTML(t.id)}</strong></a>: ${escapeHTML(t.name)}</li>`
+  ).join("");
 
-  let html = `<h4>Tecniche MITRE ATT&CK correlate</h4>`;
-
-  if (hasCore) {
-    html += `<strong>Core:</strong><ul>`;
-    map.core.forEach(id => {
-      const url = `https://attack.mitre.org/techniques/${encodeURIComponent(id)}/`;
-      html += `<li><a href="${url}" target="_blank" rel="noopener noreferrer">${escapeHTML(id)}</a></li>`;
-    });
-    html += `</ul>`;
-  }
-
-  if (hasRelated) {
-    html += `<strong>Related:</strong><ul>`;
-    map.related.forEach(id => {
-      const url = `https://attack.mitre.org/techniques/${encodeURIComponent(id)}/`;
-      html += `<li><a href="${url}" target="_blank" rel="noopener noreferrer">${escapeHTML(id)}</a></li>`;
-    });
-    html += `</ul>`;
-  }
-
-  return html;
+  return `
+    <div class="info-block mitre">
+      <h4>Tecniche MITRE ATT&CK</h4>
+      ${data.core.length > 0 ? `<ul>${renderTechs(data.core)}</ul>` : ''}
+    </div>`;
 }
 
 function buildCveBlock(predicate) {
-  const entry = cve[predicate];
-  if (!entry || !entry.cve || entry.cve.length === 0) {
-      return `<div class="info-block cve"><h4>CVE</h4><p style="color:var(--muted); font-size:12px;">Nessuna CVE critica recente trovata nel database attivo.</p></div>`;
-  }
+  const data = cve[predicate];
+  if (!data || !data.cve || data.cve.length === 0) return null;
 
-  let html = `<div class="info-block cve"><h4>Vulnerabilità CVE correlate</h4><ul>`;
-  entry.cve.forEach(id => {
+  let html = `<div class="info-block cve"><h4>Vulnerabilità CVE correlate (Kev Feed)</h4><ul>`;
+  data.cve.forEach(id => {
+    const isKev = kevList.includes(id);
     const url = `https://nvd.nist.gov/vuln/detail/${id}`;
-    html += `<li><a href="${url}" target="_blank" rel="noopener noreferrer">${escapeHTML(id)}</a></li>`;
+    html += `
+      <li>
+        <a href="${url}" target="_blank"><strong>${escapeHTML(id)}</strong></a>
+        ${isKev ? '<span class="badge-kev" title="Attivamente sfruttata in attacchi reali">Active Exploit</span>' : ''}
+      </li>`;
   });
   html += `</ul></div>`;
   return html;
@@ -291,28 +245,12 @@ function buildCveBlock(predicate) {
 
 function buildKillChainBlock(predicate) {
   const phase = killchain[predicate];
-  if (!phase) return null;
-  return `
-    <h4>Kill Chain Phase</h4>
-    <p>${escapeHTML(phase)}</p>
-  `;
+  if (!phase || phase === "None") return null;
+  return `<div class="info-block killchain"><h4>Kill Chain Phase</h4><p>${escapeHTML(phase)}</p></div>`;
 }
 
-/* ============================================================
-   UTILS
-============================================================ */
 function escapeHTML(str) {
-  return String(str)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+  return String(str).replace(/[&<>"']/g, m => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[m]));
 }
-
-/* ============================================================
-   (Opzionale) Ricerca globale – disabilitata in questa vista
-   (Se servirà, possiamo aggiungere una barra di ricerca per tab)
-============================================================ */
-
-/* Fine file */

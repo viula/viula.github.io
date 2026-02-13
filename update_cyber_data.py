@@ -2,42 +2,61 @@ import json
 import requests
 
 def update():
-    # 1. Carica i predicati dal tuo machinetag.json
+    print("Avvio arricchimento dati...")
+    
+    # 1. Scarica MITRE ATT&CK (per nomi tecniche)
+    print("Recupero nomi tecniche MITRE...")
+    mitre_url = "https://raw.githubusercontent.com/mitre/cti/master/enterprise-attack/enterprise-attack.json"
+    mitre_raw = requests.get(mitre_url).json()
+    mitre_db = {obj['external_references'][0]['external_id']: obj['name'] 
+                for obj in mitre_raw['objects'] 
+                if obj.get('type') == 'attack-pattern' and obj.get('external_references')}
+
+    # 2. Scarica CISA KEV (per priorità e mapping CVE)
+    print("Recupero catalogo CISA KEV...")
+    kev_url = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
+    kev_raw = requests.get(kev_url).json()
+    vulnerabilities = kev_raw['vulnerabilities']
+    kev_ids = [v['cveID'] for v in vulnerabilities]
+
+    # 3. Carica i file locali del tuo progetto
     with open('machinetag.json', 'r') as f:
         machinetag = json.load(f)
-    
-    # Estraiamo tutti i valori dei predicati e i valori dentro gli 'entries'
-    all_terms = []
-    for pred in machinetag['predicates']:
-        all_terms.append(pred['value'])
-        if 'entries' in pred:
-            for entry in pred['entries']:
-                all_terms.append(entry['value'])
+    with open('mitre_mapping.json', 'r') as f:
+        mitre_map = json.load(f)
 
-    # 2. Scarica CISA KEV (Live Feed)
-    print("Fetching CISA KEV data...")
-    kev_url = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
-    kev_data = requests.get(kev_url).json()['vulnerabilities']
-
-    # 3. Mappatura CVE
+    # 4. Generazione automatica cve_mapping.json
+    # Cerchiamo match tra predicati ACN e descrizioni CVE nel catalogo KEV
     new_cve_mapping = {}
-    for term in all_terms:
-        # Cerchiamo match: il termine deve apparire nella descrizione della CVE
-        # Puliamo il termine (es. 'active-scanning' -> 'active scanning')
-        search_term = term.replace('-', ' ').lower()
-        
+    all_predicates = [p['value'] for p in machinetag['predicates']]
+    
+    for pred in all_predicates:
+        search_term = pred.replace('-', ' ').lower()
         matches = [
-            v['cveID'] for v in kev_data 
+            v['cveID'] for v in vulnerabilities 
             if search_term in v['shortDescription'].lower()
         ]
-        # Teniamo solo le 10 più recenti per non appesantire il JSON
-        new_cve_mapping[term] = {"cve": matches[:10]}
+        new_cve_mapping[pred] = {"cve": matches[:10]} # Limitiamo a 10 per predicato
 
-    # 4. Salvataggio
+    # 5. Arricchimento MITRE: aggiungiamo i nomi alle tecniche
+    enriched_mitre = {}
+    for pred, data in mitre_map.items():
+        enriched_mitre[pred] = {
+            "core": [{"id": tid, "name": mitre_db.get(tid, "Unknown")} for tid in data.get('core', [])],
+            "related": [{"id": tid, "name": mitre_db.get(tid, "Unknown")} for tid in data.get('related', [])]
+        }
+
+    # 6. Salvataggio di tutti i file necessari al frontend
     with open('cve_mapping.json', 'w') as f:
         json.dump(new_cve_mapping, f, indent=2)
-    
-    print(f"Aggiornamento completato: {len(new_cve_mapping)} termini mappati.")
+        
+    with open('mitre_mapping_enriched.json', 'w') as f:
+        json.dump(enriched_mitre, f, indent=2)
+        
+    with open('cisa_kev_list.json', 'w') as f:
+        json.dump(kev_ids, f)
+
+    print(f"Successo! Mappate {len(kev_ids)} CVE critiche e arricchiti i predicati MITRE.")
 
 if __name__ == "__main__":
     update()
