@@ -21,8 +21,8 @@ jobs:
         run: python update_cyber_data.py
       - name: Commit and Push
         run: |
-          git config --global user.name 'CyberBot'
-          git config --global user.email 'bot@noreply.github.com'
+          git config --global user.name 'viula'
+          git config --global user.email 'violato.a@gmail.com'
           git add cve_mapping.json
           git commit -m "Auto-update: CVE Mapping from CISA KEV" || exit 0
           git push

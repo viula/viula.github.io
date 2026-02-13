@@ -24,8 +24,8 @@ jobs:
 
       - name: Commit and Push
         run: |
-          git config --global user.name 'Cyber-Update-Bot'
-          git config --global user.email 'bot@noreply.github.com'
+          git config --global user.name 'viula'
+          git config --global user.email 'violato.a@gmail.com'
           git add cve_mapping.json mitre_mapping.json
           git commit -m "Auto-update: Nuove CVE e mapping MITRE" || exit 0
           git push
