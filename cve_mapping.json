@@ -1,53 +1,127 @@
 {
-  "impact": { "cve": [] },
-  "root-cause": { "cve": [] },
-  "severity": { "cve": [] },
-  "victim-geography": { "cve": [] },
-
+  "impact": {
+    "cve": [
+      "CVE-2026-21509",
+      "CVE-2025-59374",
+      "CVE-2025-43529",
+      "CVE-2018-4063",
+      "CVE-2022-37055",
+      "CVE-2022-48503",
+      "CVE-2010-3962",
+      "CVE-2013-3918",
+      "CVE-2025-38352",
+      "CVE-2023-50224"
+    ]
+  },
+  "root-cause": {
+    "cve": []
+  },
+  "severity": {
+    "cve": []
+  },
+  "victim-geography": {
+    "cve": []
+  },
   "active-scanning": {
-    "cve": ["CVE-2023-34362"]
+    "cve": []
   },
-
   "availability": {
-    "cve": ["CVE-2021-44228", "CVE-2024-4577"]
+    "cve": [
+      "CVE-2022-37055",
+      "CVE-2025-38352",
+      "CVE-2024-54085",
+      "CVE-2025-42999",
+      "CVE-2024-38217",
+      "CVE-2024-38112",
+      "CVE-2024-21351",
+      "CVE-2023-36584",
+      "CVE-2016-3427",
+      "CVE-2022-41049"
+    ]
   },
-
-  "brand-abuse": { "cve": [] },
-
-  "fraud": { "cve": [] },
-
+  "brand-abuse": {
+    "cve": []
+  },
+  "fraud": {
+    "cve": []
+  },
   "data-exposure": {
-    "cve": ["CVE-2023-50164", "CVE-2020-3452"]
+    "cve": [
+      "CVE-2024-21351"
+    ]
   },
-
   "information-gathering": {
-    "cve": ["CVE-2021-41773"]
+    "cve": []
   },
-
   "malicious-code": {
-    "cve": ["CVE-2017-11882", "CVE-2021-40444"]
+    "cve": [
+      "CVE-2025-54313",
+      "CVE-2025-59374",
+      "CVE-2025-54948",
+      "CVE-2025-30154",
+      "CVE-2025-30066",
+      "CVE-2021-44529",
+      "CVE-2023-20109",
+      "CVE-2018-14667",
+      "CVE-2014-8361",
+      "CVE-2021-3129"
+    ]
   },
-
-  "social-engineering": { "cve": [] },
-
+  "social-engineering": {
+    "cve": []
+  },
   "vulnerability": {
-    "cve": ["CVE-2024-3094", "CVE-2023-4863", "CVE-2022-22965"]
+    "cve": [
+      "CVE-2026-20700",
+      "CVE-2024-43468",
+      "CVE-2025-15556",
+      "CVE-2025-40536",
+      "CVE-2026-21513",
+      "CVE-2026-21510",
+      "CVE-2026-21533",
+      "CVE-2026-21519",
+      "CVE-2026-21514",
+      "CVE-2025-11953"
+    ]
   },
-
-  "adversary-motivation": { "cve": [] },
-  "adversary-type": { "cve": [] },
-
-  "abusive-content": { "cve": [] },
-
-  "asset-source-geography": { "cve": [] },
-
-  "involved-asset": { "cve": [] },
-
-  "outlook": { "cve": [] },
-
-  "physical-security": { "cve": [] },
-
+  "adversary-motivation": {
+    "cve": []
+  },
+  "adversary-type": {
+    "cve": []
+  },
+  "abusive-content": {
+    "cve": []
+  },
+  "asset-source-geography": {
+    "cve": []
+  },
+  "involved-asset": {
+    "cve": []
+  },
+  "outlook": {
+    "cve": [
+      "CVE-2024-21413",
+      "CVE-2023-35311",
+      "CVE-2023-23397",
+      "CVE-2017-11774"
+    ]
+  },
+  "physical-security": {
+    "cve": []
+  },
   "vector": {
-    "cve": ["CVE-2022-30190", "CVE-2018-8174"]
+    "cve": [
+      "CVE-2010-3765",
+      "CVE-2017-6884",
+      "CVE-2016-3427",
+      "CVE-2016-2386",
+      "CVE-2012-1710",
+      "CVE-2010-0840",
+      "CVE-2018-7602",
+      "CVE-2013-2465",
+      "CVE-2012-0518",
+      "CVE-2015-4902"
+    ]
   }
 }
