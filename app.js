@@ -1,8 +1,5 @@
 /* ============================================================
-   ACN + MITRE ENRICHED + CVE KEV + KILLCHAIN VIEWER
-   - Tabs (macrocategorie) nel corpo centrale
-   - Accordion (predicati) con Badge KEV dinamici
-   - Ripristino Cards Valori (Entries)
+   ACN VIEWER - FINAL STABLE VERSION
 ============================================================ */
 
 let acn = null;
@@ -14,15 +11,13 @@ let killchain = null;
 
 const SINGLE_OPEN_MODE = true;
 
-/* ---------------------------
-   LOAD JSON FILES
----------------------------- */
 async function loadData() {
   try {
+    // Carichiamo i file. Nota: usiamo mitre_mapping_enriched se esiste, altrimenti mitre_mapping
     const [acnRes, enrichedRes, mitreRes, cveRes, kevRes, killchainRes] = await Promise.all([
       fetch("machinetag.json").then(r => r.json()),
       fetch("acn_enriched.json").then(r => r.json()),
-      fetch("mitre_mapping_enriched.json").then(r => r.json()),
+      fetch("mitre_mapping_enriched.json").then(r => r.json()).catch(() => fetch("mitre_mapping.json").then(r => r.json())),
       fetch("cve_mapping.json").then(r => r.json()),
       fetch("cisa_kev_list.json").then(r => r.json()).catch(() => []),
       fetch("killchain_mapping.json").then(r => r.json())
@@ -35,26 +30,24 @@ async function loadData() {
     kevList = kevRes;
     killchain = killchainRes;
 
+    console.log("Dati caricati correttamente. Predicati trovati:", acn.predicates.length);
+
     buildMacroTabs();
     const firstMacro = Object.keys(enriched.macro_categories)[0] || "BC";
     selectMacroTab(firstMacro);
     
   } catch (error) {
-    console.error("Errore nel caricamento dei dati:", error);
-    document.getElementById("tabContent").innerHTML = "<p>Errore nel caricamento dei database.</p>";
+    console.error("Errore nel caricamento:", error);
   }
 }
 
 loadData();
 
-/* ============================================================
-   MACRO TABS
-============================================================ */
+/* --- TABS --- */
 function buildMacroTabs() {
   const tabs = document.getElementById("macroTabs");
   tabs.innerHTML = "";
-  const order = ["BC","TT","TA","AC"];
-  order.forEach(code => {
+  ["BC","TT","TA","AC"].forEach(code => {
     const macro = enriched.macro_categories[code];
     if (!macro) return;
     const btn = document.createElement("button");
@@ -81,14 +74,12 @@ function selectMacroTab(code) {
   });
 }
 
-/* ============================================================
-   PREDICATE SECTION (Accordion)
-============================================================ */
+/* --- ACCORDION --- */
 function buildPredicateSection(pred) {
   const section = document.createElement("section");
   section.className = "pred-section";
   
-  // Recupero il conteggio degli item dal database acn.values
+  // TROVA I VALORI: Cerchiamo nell'array 'values' di machinetag.json
   const subset = acn.values.find(v => v.predicate === pred.value);
   const entryCount = subset?.entry?.length || 0;
 
@@ -132,19 +123,17 @@ function togglePredicate(header, open) {
   if (open) panel.classList.add("open"); else panel.classList.remove("open");
 }
 
-/* ============================================================
-   RENDER PANEL CONTENT
-============================================================ */
+/* --- RENDERING INTERNO --- */
 function renderPredicatePanel(pred, panel, subset) {
   panel.innerHTML = "";
 
-  // 1. Summary
+  // 1. Riepilogo
   const summary = document.createElement("div");
   summary.className = "predicate-summary";
   summary.innerHTML = buildSummaryHTML(pred);
   panel.appendChild(summary);
 
-  // 2. Info Blocks
+  // 2. Threat Intelligence
   const info = document.createElement("section");
   info.className = "predicate-info";
 
@@ -159,7 +148,7 @@ function renderPredicatePanel(pred, panel, subset) {
 
   if (info.children.length > 0) panel.appendChild(info);
 
-  // 3. Values (LE CARD CHE ERANO SPARITE)
+  // 3. CARDS DEI VALORI (ITEM)
   if (subset && subset.entry && subset.entry.length > 0) {
     const valuesDiv = document.createElement("div");
     valuesDiv.className = "values";
@@ -169,18 +158,18 @@ function renderPredicatePanel(pred, panel, subset) {
       if (val.colour) card.style.borderLeft = `6px solid ${val.colour}`;
       card.innerHTML = `
         <h3>${escapeHTML(val.expanded)}</h3>
-        <div class="value-meta">Codice: ${escapeHTML(val.value)} | UUID: ${escapeHTML(val.uuid || "-")}</div>
+        <div class="value-meta">Codice: <code>${escapeHTML(val.value)}</code></div>
         <div class="value-desc">${escapeHTML(val.description || "")}</div>
       `;
       valuesDiv.appendChild(card);
     });
     panel.appendChild(valuesDiv);
+  } else {
+    panel.insertAdjacentHTML('beforeend', '<p style="padding:10px; color:#999;">Nessun valore specifico trovato per questo predicato.</p>');
   }
 }
 
-/* ============================================================
-   BUILDERS & UTILS
-============================================================ */
+/* --- HELPERS --- */
 function buildSummaryHTML(pred) {
   const macro = enriched.predicate_to_macro[pred.value];
   const macroName = enriched.macro_categories[macro]?.name || "N/A";
@@ -191,35 +180,37 @@ function buildSummaryHTML(pred) {
     <div class="badges">
       ${mitreEnriched[pred.value] ? '<span class="summary-badge mitre">MITRE ✓</span>' : ''}
       ${cve[pred.value]?.cve?.length > 0 ? '<span class="summary-badge cve">CVE ✓</span>' : ''}
-      ${kcPhase ? `<span class="summary-badge kc">KillChain: ${escapeHTML(kcPhase)}</span>` : ''}
+      ${kcPhase ? `<span class="summary-badge kc">${escapeHTML(kcPhase)}</span>` : ''}
     </div>`;
 }
 
 function buildMitreBlock(predicate) {
   const data = mitreEnriched[predicate];
-  if (!data || (!data.core.length && !data.related.length)) return null;
-  const renderTechs = (list) => list.map(t => 
-    `<li><a href="https://attack.mitre.org/techniques/${t.id.split('.')[0]}/" target="_blank"><strong>${escapeHTML(t.id)}</strong></a>: ${escapeHTML(t.name)}</li>`
-  ).join("");
-  return `<div class="info-block mitre"><h4>Tecniche MITRE</h4><ul>${renderTechs(data.core)}${renderTechs(data.related)}</ul></div>`;
+  if (!data) return null;
+  // Supporta sia il formato vecchio (stringhe) che quello nuovo (oggetti con .name)
+  const renderItem = (t) => {
+    const id = typeof t === 'string' ? t : t.id;
+    const name = typeof t === 'string' ? "" : ` - ${t.name}`;
+    return `<li><strong>${id}</strong>${name}</li>`;
+  };
+  const core = (data.core || []).map(renderItem).join("");
+  const related = (data.related || []).map(renderItem).join("");
+  return (core || related) ? `<div class="info-block mitre"><h4>Tecniche MITRE</h4><ul>${core}${related}</ul></div>` : null;
 }
 
 function buildCveBlock(predicate) {
   const data = cve[predicate];
   if (!data || !data.cve?.length) return null;
-  let html = `<div class="info-block cve"><h4>CVE Correlate</h4><ul>`;
-  data.cve.forEach(id => {
-    const isKev = kevList.includes(id);
-    html += `<li><a href="https://nvd.nist.gov/vuln/detail/${id}" target="_blank"><strong>${escapeHTML(id)}</strong></a>${isKev ? '<span class="badge-kev">Active Exploit</span>' : ''}</li>`;
-  });
-  return html + `</ul></div>`;
+  const listHtml = data.cve.map(id => `<li><a href="https://nvd.nist.gov/vuln/detail/${id}" target="_blank">${id}</a> ${kevList.includes(id) ? '<span class="badge-kev">Active Exploit</span>' : ''}</li>`).join("");
+  return `<div class="info-block cve"><h4>CVE Correlate</h4><ul>${listHtml}</ul></div>`;
 }
 
 function buildKillChainBlock(predicate) {
   const phase = killchain[predicate];
-  return (phase && phase !== "None") ? `<div class="info-block killchain"><h4>Kill Chain</h4><p>${escapeHTML(phase)}</p></div>` : null;
+  return (phase && phase !== "None") ? `<div class="info-block killchain"><h4>Kill Chain Phase</h4><p>${phase}</p></div>` : null;
 }
 
 function escapeHTML(str) {
+  if (!str) return "";
   return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m]));
 }
