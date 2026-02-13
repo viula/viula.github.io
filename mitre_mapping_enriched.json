@@ -1,0 +1,337 @@
+{
+  "impact": {
+    "core": [],
+    "related": []
+  },
+  "root-cause": {
+    "core": [],
+    "related": []
+  },
+  "severity": {
+    "core": [],
+    "related": []
+  },
+  "victim-geography": {
+    "core": [],
+    "related": []
+  },
+  "active-scanning": {
+    "core": [
+      {
+        "id": "T1595",
+        "name": "Active Scanning"
+      },
+      {
+        "id": "T1595.001",
+        "name": "Scanning IP Blocks"
+      },
+      {
+        "id": "T1595.002",
+        "name": "Vulnerability Scanning"
+      },
+      {
+        "id": "T1046",
+        "name": "Network Service Discovery"
+      },
+      {
+        "id": "T1040",
+        "name": "Network Sniffing"
+      }
+    ],
+    "related": [
+      {
+        "id": "T1590",
+        "name": "Gather Victim Network Information"
+      },
+      {
+        "id": "T1590.001",
+        "name": "Domain Properties"
+      },
+      {
+        "id": "T1590.002",
+        "name": "DNS"
+      },
+      {
+        "id": "T1592",
+        "name": "Gather Victim Host Information"
+      },
+      {
+        "id": "T1592.001",
+        "name": "Hardware"
+      }
+    ]
+  },
+  "availability": {
+    "core": [
+      {
+        "id": "T1498",
+        "name": "Network Denial of Service"
+      },
+      {
+        "id": "T1498.001",
+        "name": "Direct Network Flood"
+      },
+      {
+        "id": "T1499",
+        "name": "Endpoint Denial of Service"
+      },
+      {
+        "id": "T1499.004",
+        "name": "Application or System Exploitation"
+      }
+    ],
+    "related": [
+      {
+        "id": "T1496",
+        "name": "Resource Hijacking"
+      }
+    ]
+  },
+  "brand-abuse": {
+    "core": [],
+    "related": [
+      {
+        "id": "T1583",
+        "name": "Acquire Infrastructure"
+      },
+      {
+        "id": "T1583.001",
+        "name": "Domains"
+      },
+      {
+        "id": "T1583.002",
+        "name": "DNS Server"
+      },
+      {
+        "id": "T1585",
+        "name": "Establish Accounts"
+      },
+      {
+        "id": "T1585.002",
+        "name": "Email Accounts"
+      }
+    ]
+  },
+  "fraud": {
+    "core": [],
+    "related": [
+      {
+        "id": "T1585",
+        "name": "Establish Accounts"
+      },
+      {
+        "id": "T1586",
+        "name": "Compromise Accounts"
+      }
+    ]
+  },
+  "data-exposure": {
+    "core": [
+      {
+        "id": "T1530",
+        "name": "Data from Cloud Storage"
+      },
+      {
+        "id": "T1552",
+        "name": "Unsecured Credentials"
+      },
+      {
+        "id": "T1552.001",
+        "name": "Credentials In Files"
+      }
+    ],
+    "related": [
+      {
+        "id": "T1041",
+        "name": "Exfiltration Over C2 Channel"
+      },
+      {
+        "id": "T1020",
+        "name": "Automated Exfiltration"
+      }
+    ]
+  },
+  "information-gathering": {
+    "core": [
+      {
+        "id": "T1590",
+        "name": "Gather Victim Network Information"
+      },
+      {
+        "id": "T1590.001",
+        "name": "Domain Properties"
+      },
+      {
+        "id": "T1590.002",
+        "name": "DNS"
+      },
+      {
+        "id": "T1592",
+        "name": "Gather Victim Host Information"
+      },
+      {
+        "id": "T1592.001",
+        "name": "Hardware"
+      }
+    ],
+    "related": [
+      {
+        "id": "T1589",
+        "name": "Gather Victim Identity Information"
+      },
+      {
+        "id": "T1589.001",
+        "name": "Credentials"
+      }
+    ]
+  },
+  "malicious-code": {
+    "core": [
+      {
+        "id": "T1059",
+        "name": "Command and Scripting Interpreter"
+      },
+      {
+        "id": "T1059.001",
+        "name": "PowerShell"
+      },
+      {
+        "id": "T1059.003",
+        "name": "Windows Command Shell"
+      },
+      {
+        "id": "T1204",
+        "name": "User Execution"
+      },
+      {
+        "id": "T1204.002",
+        "name": "Malicious File"
+      }
+    ],
+    "related": [
+      {
+        "id": "T1027",
+        "name": "Obfuscated Files or Information"
+      },
+      {
+        "id": "T1027.002",
+        "name": "Software Packing"
+      },
+      {
+        "id": "T1055",
+        "name": "Process Injection"
+      },
+      {
+        "id": "T1055.001",
+        "name": "Dynamic-link Library Injection"
+      }
+    ]
+  },
+  "social-engineering": {
+    "core": [
+      {
+        "id": "T1566",
+        "name": "Phishing"
+      },
+      {
+        "id": "T1566.001",
+        "name": "Spearphishing Attachment"
+      },
+      {
+        "id": "T1566.002",
+        "name": "Spearphishing Link"
+      }
+    ],
+    "related": [
+      {
+        "id": "T1598",
+        "name": "Phishing for Information"
+      },
+      {
+        "id": "T1598.003",
+        "name": "Spearphishing Link"
+      }
+    ]
+  },
+  "vulnerability": {
+    "core": [
+      {
+        "id": "T1203",
+        "name": "Exploitation for Client Execution"
+      },
+      {
+        "id": "T1203.001",
+        "name": "Unknown"
+      },
+      {
+        "id": "T1190",
+        "name": "Exploit Public-Facing Application"
+      }
+    ],
+    "related": [
+      {
+        "id": "T1211",
+        "name": "Exploitation for Defense Evasion"
+      },
+      {
+        "id": "T1068",
+        "name": "Exploitation for Privilege Escalation"
+      }
+    ]
+  },
+  "adversary-motivation": {
+    "core": [],
+    "related": []
+  },
+  "adversary-type": {
+    "core": [],
+    "related": []
+  },
+  "abusive-content": {
+    "core": [],
+    "related": []
+  },
+  "asset-source-geography": {
+    "core": [],
+    "related": []
+  },
+  "involved-asset": {
+    "core": [],
+    "related": []
+  },
+  "outlook": {
+    "core": [],
+    "related": []
+  },
+  "physical-security": {
+    "core": [],
+    "related": [
+      {
+        "id": "T1195",
+        "name": "Supply Chain Compromise"
+      }
+    ]
+  },
+  "vector": {
+    "core": [
+      {
+        "id": "T1566",
+        "name": "Phishing"
+      },
+      {
+        "id": "T1189",
+        "name": "Drive-by Compromise"
+      }
+    ],
+    "related": [
+      {
+        "id": "T1200",
+        "name": "Hardware Additions"
+      },
+      {
+        "id": "T1105",
+        "name": "Ingress Tool Transfer"
+      }
+    ]
+  }
+}
