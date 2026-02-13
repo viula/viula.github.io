@@ -35,6 +35,7 @@ async function loadData() {
     buildMacroTabs();
     const firstMacro = Object.keys(enriched.macro_categories)[0] || "BC";
     selectMacroTab(firstMacro);
+    setupSearch();
     
   } catch (error) {
     console.error("Errore nel caricamento:", error);
@@ -229,4 +230,54 @@ function buildKillChainBlock(predicate) {
 function escapeHTML(str) {
   if (!str) return "";
   return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m]));
+}
+
+function setupSearch() {
+  const searchInput = document.getElementById("globalSearch");
+  
+  searchInput.addEventListener("input", (e) => {
+    const term = e.target.value.toLowerCase();
+    const container = document.getElementById("tabContent");
+    
+    if (term.length < 2) {
+      // Se la ricerca è vuota, ripristina la tab corrente
+      const activeTab = document.querySelector(".macro-tab[aria-selected='true']");
+      selectMacroTab(activeTab.dataset.macro);
+      return;
+    }
+
+    // Ricerca globale in tutti i dati
+    container.innerHTML = "";
+    
+    acn.predicates.forEach(pred => {
+      const subset = acn.values.find(v => v.predicate === pred.value);
+      const entries = subset?.entry || [];
+      
+      // Controlliamo se il termine è nel nome del predicato o nei suoi valori
+      const matchInPred = pred.expanded.toLowerCase().includes(term) || pred.value.toLowerCase().includes(term);
+      const matchingEntries = entries.filter(e => 
+        e.expanded.toLowerCase().includes(term) || 
+        e.description.toLowerCase().includes(term) ||
+        e.value.toLowerCase().includes(term)
+      );
+
+      if (matchInPred || matchingEntries.length > 0) {
+        const section = buildPredicateSection(pred);
+        container.appendChild(section);
+        
+        // Se ci sono match specifici nei valori, apriamo l'accordion e renderizziamo
+        if (term.length > 2) {
+          const header = section.querySelector(".pred-header");
+          const panel = section.querySelector(".pred-panel");
+          togglePredicate(header, true);
+          renderPredicatePanel(pred, panel, subset);
+          panel.dataset.rendered = "true";
+        }
+      }
+    });
+
+    if (container.innerHTML === "") {
+      container.innerHTML = `<div style="padding:40px; text-align:center; color:var(--muted);">Nessun risultato trovato per "${escapeHTML(term)}"</div>`;
+    }
+  });
 }

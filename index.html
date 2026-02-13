@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tassonomia ACN – Viewer</title>
+  <title>Cyber Taxonomy Viewer</title>
 
   <!-- CSS -->
   <link rel="stylesheet" href="style.css" />
@@ -11,11 +11,14 @@
 
 <body>
   <header class="app-header">
-    <h1>Visualizzatore Tassonomia ACN</h1>
-    <div class="meta">
-      <span class="badge">TC‑ACN</span>
+    <h1>Visualizzatore Tassonomia Cyber</h1>
+    <div class="search-container">
+      <input type="text" id="globalSearch" placeholder="Cerca predicati, valori o CVE..." autocomplete="off">
     </div>
-  </header>
+    <div class="meta">
+      <span class="badge">TC-v.0.1</span>
+    </div>
+</header>
 
   <main class="content">
     <!-- ===================== TABS MACROCATEGORIE ===================== -->
@@ -26,7 +29,7 @@
   </main>
 
   <footer class="app-footer">
-    <small>ACN + MITRE ATT&CK + NVD CVE + Kill Chain – Viewer Offline</small>
+    <small>ACN + MITRE ATT&CK + NVD CVE + KEV + Kill Chain</small>
   </footer>
 
   <!-- JS -->

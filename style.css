@@ -43,6 +43,35 @@ body {
   font-weight: 600;
 }
 
+.search-container {
+  flex-grow: 1;
+  margin: 0 40px;
+  max-width: 600px;
+}
+
+#globalSearch {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+#globalSearch:focus {
+  border-color: var(--primary);
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+/* Evidenzia i match nei risultati */
+.highlight {
+  background-color: #ffeb3b;
+  font-weight: bold;
+}
+
 /* ============================================================
    CONTENT WRAPPER
 ============================================================ */
