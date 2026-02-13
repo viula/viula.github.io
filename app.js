@@ -47,17 +47,37 @@ loadData();
 /* --- TABS --- */
 function buildMacroTabs() {
   const tabs = document.getElementById("macroTabs");
-  tabs.innerHTML = "";
-  ["BC","TT","TA","AC"].forEach(code => {
+  tabs.innerHTML = ""; // Pulisce il contenitore
+
+  // 1. Crea le tab standard (BC, TT, TA, AC)
+  const order = ["BC", "TT", "TA", "AC"];
+  order.forEach(code => {
     const macro = enriched.macro_categories[code];
     if (!macro) return;
     const btn = document.createElement("button");
     btn.className = "macro-tab";
     btn.dataset.macro = code;
     btn.textContent = `${code} — ${macro.name}`;
-    btn.addEventListener("click", () => selectMacroTab(code));
+    btn.addEventListener("click", () => {
+        // Nasconde la matrice se l'utente torna sulle tab normali
+        document.getElementById("matrixView").style.display = "none";
+        document.getElementById("tabContent").style.display = "block";
+        selectMacroTab(code);
+    });
     tabs.appendChild(btn);
   });
+
+  // 2. AGGIUNGI ORA IL PULSANTE SPECIALE (così non sparisce più)
+  const specialBtn = document.createElement("button");
+  specialBtn.className = "macro-tab special";
+  specialBtn.innerHTML = "📊 Matrice Relazioni";
+  specialBtn.onclick = () => {
+      // De-seleziona le altre tab
+      document.querySelectorAll(".macro-tab").forEach(b => b.setAttribute("aria-selected", "false"));
+      specialBtn.setAttribute("aria-selected", "true");
+      showRelationMatrix();
+  };
+  tabs.appendChild(specialBtn);
 }
 
 function selectMacroTab(code) {
@@ -283,19 +303,20 @@ function setupSearch() {
 }
 
 function showRelationMatrix() {
-  const container = document.getElementById("tabContent");
-  // Nascondiamo la vista tab standard
-  container.innerHTML = `
-    <div class="matrix-container">
-      <h2 style="margin-top:0">Mappa delle Relazioni ACN</h2>
-      <p>Questa vista correla i Vettori alle Minacce e alla Kill Chain.</p>
-      
-      <div style="display: flex; justify-content: space-between; gap: 20px;">
-        <div class="node-column" id="col-vectors"><h4>Vettori (Inizio)</h4></div>
-        <div class="node-column" id="col-threats"><h4>Minacce (Esecuzione)</h4></div>
-        <div class="node-column" id="col-killchain"><h4>Kill Chain (Fase)</h4></div>
-        <div class="node-column" id="col-impact"><h4>Impatto (Fine)</h4></div>
-      </div>
+  const tabContent = document.getElementById("tabContent");
+  const matrixView = document.getElementById("matrixView");
+
+  // Nascondi il contenuto standard e mostra la matrice
+  tabContent.style.display = "none";
+  matrixView.style.display = "block";
+
+  matrixView.innerHTML = `
+    <h2 style="color:white; margin-bottom:20px;">Mappa delle Relazioni ACN</h2>
+    <div style="display: flex; justify-content: space-between; gap: 20px;">
+      <div class="node-column" id="col-vectors"><h4>Vettori</h4></div>
+      <div class="node-column" id="col-threats"><h4>Minacce</h4></div>
+      <div class="node-column" id="col-killchain"><h4>Fase Kill Chain</h4></div>
+      <div class="node-column" id="col-impact"><h4>Impatto Finali</h4></div>
     </div>
   `;
 
