@@ -9,6 +9,20 @@ let cve = null;
 let kevList = []; 
 let killchain = null;
 
+const ACN_RELATIONS = {
+    // VETTORE -> MINACCE CORRELATE
+    "email": ["social-engineering", "malicious-code"],
+    "web": ["vulnerability", "malicious-code", "active-scanning"],
+    "removable-media": ["malicious-code"],
+    "external-assets": ["vulnerability", "availability", "data-exposure"],
+    
+    // MINACCIA -> IMPATTI TIPICI
+    "malicious-code": ["infection", "data-exfiltration", "service-disruption"],
+    "social-engineering": ["unauthorised-access", "fraud"],
+    "availability": ["service-disruption", "system-crash"],
+    "vulnerability": ["unauthorised-access", "data-leak"]
+};
+
 const SINGLE_OPEN_MODE = true;
 
 async function loadData() {
@@ -362,33 +376,54 @@ function renderNodes(columnId, items, color, predicateValue = null) {
 }
 
 function highlightConnections(id, predicate) {
-  const allNodes = document.querySelectorAll('.relation-node');
-  allNodes.forEach(n => n.style.opacity = "0.2"); // Oscura tutto
+    const allNodes = document.querySelectorAll('.relation-node');
+    allNodes.forEach(n => n.style.opacity = "0.1"); // Oscura tutto molto di più
 
-  // 1. Evidenzia il nodo selezionato
-  const activeNode = document.querySelector(`.relation-node[data-id="${id}"]`);
-  if (activeNode) activeNode.style.opacity = "1";
+    // 1. Evidenzia il nodo su cui si trova il mouse
+    const activeNode = document.querySelector(`.relation-node[data-id="${id}"]`);
+    if (activeNode) {
+        activeNode.style.opacity = "1";
+        activeNode.style.borderColor = "white";
+    }
 
-  // 2. LOGICA DI COLLEGAMENTO (Esempio basato su Kill Chain)
-  // Se è una minaccia (TT), evidenzia la sua fase Kill Chain
-  if (killchain[id]) {
-    const kcPhase = killchain[id].toLowerCase().replace(/\s+/g, '-');
-    const phaseNode = document.querySelector(`.relation-node[data-id="${kcPhase}"]`);
-    if (phaseNode) phaseNode.style.opacity = "1";
-  }
+    // 2. COLLEGAMENTI LOGICI (Vettori -> Minacce o Minacce -> Impatti)
+    const relatedIds = ACN_RELATIONS[id] || [];
+    
+    // 3. COLLEGAMENTI PER TECNICHE MITRE (Se condividono TTPs)
+    const currentMitreIds = getMitreIds(id);
 
-  // 3. LOGICA BASATA SU MITRE (Se condividono tecniche simili)
-  const currentMitre = mitreEnriched[id]?.core.map(t => t.id) || [];
-  if (currentMitre.length > 0) {
     allNodes.forEach(node => {
-      const nodeMitre = mitreEnriched[node.dataset.id]?.core.map(t => t.id) || [];
-      // Se condividono almeno una tecnica MITRE, evidenziali
-      if (nodeMitre.some(t => currentMitre.includes(t))) {
-        node.style.opacity = "1";
-        node.style.borderColor = "var(--primary)";
-      }
+        const nodeId = node.dataset.id;
+
+        // Regola A: È un ID correlato direttamente nelle nostre regole?
+        if (relatedIds.includes(nodeId)) {
+            node.style.opacity = "1";
+            node.style.boxShadow = "0 0 15px rgba(255,255,255,0.3)";
+        }
+
+        // Regola B: È la fase Kill Chain corretta per questa minaccia?
+        if (killchain[id] && nodeId === killchain[id].toLowerCase().replace(/\s+/g, '-')) {
+            node.style.opacity = "1";
+        }
+
+        // Regola C: Condivide tecniche MITRE?
+        if (currentMitreIds.length > 0) {
+            const nodeMitreIds = getMitreIds(nodeId);
+            if (nodeMitreIds.some(t => currentMitreIds.includes(t))) {
+                node.style.opacity = "1";
+                node.style.borderColor = "var(--primary)";
+            }
+        }
     });
-  }
+}
+
+// Funzione di supporto per estrarre solo gli ID MITRE
+function getMitreIds(id) {
+    if (!mitreEnriched[id]) return [];
+    const core = mitreEnriched[id].core || [];
+    const related = mitreEnriched[id].related || [];
+    // Gestisce sia se sono stringhe che oggetti
+    return [...core, ...related].map(t => typeof t === 'string' ? t : t.id);
 }
 
 function resetConnections() {
