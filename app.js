@@ -377,42 +377,51 @@ function renderNodes(columnId, items, color, predicateValue = null) {
 
 function highlightConnections(id, predicate) {
     const allNodes = document.querySelectorAll('.relation-node');
-    allNodes.forEach(n => n.style.opacity = "0.1"); // Oscura tutto molto di più
+    allNodes.forEach(n => {
+        n.style.opacity = "0.1";
+        n.classList.remove('step-1', 'step-2', 'step-3', 'step-4');
+        const badge = n.querySelector('.step-badge');
+        if (badge) badge.remove();
+    });
 
-    // 1. Evidenzia il nodo su cui si trova il mouse
+    const steps = [];
+
+    // FASE 1: Identifichiamo il punto di partenza
     const activeNode = document.querySelector(`.relation-node[data-id="${id}"]`);
-    if (activeNode) {
-        activeNode.style.opacity = "1";
-        activeNode.style.borderColor = "white";
+    if (!activeNode) return;
+
+    // Determiniamo se stiamo partendo da un Vettore o da una Minaccia
+    let startType = "";
+    if (predicate === 'vector') startType = "VEC";
+    else if (enriched.macro_categories['TT'].predicates.includes(id)) startType = "THR";
+
+    // COSTRUZIONE DEL PERCORSO
+    if (startType === "VEC") {
+        steps.push({id: id, label: "1. Origine"});
+        const threats = ACN_RELATIONS[id] || [];
+        if (threats.length > 0) {
+            steps.push({id: threats[0], label: "2. Esecuzione"}); // Prendiamo la prima correlata
+            const phase = killchain[threats[0]];
+            if (phase) steps.push({id: phase.toLowerCase().replace(/\s+/g, '-'), label: "3. Fase KC"});
+        }
+    } else {
+        steps.push({id: id, label: "1. Minaccia"});
+        const phase = killchain[id];
+        if (phase) steps.push({id: phase.toLowerCase().replace(/\s+/g, '-'), label: "2. Fase KC"});
+        const impacts = ACN_RELATIONS[id] || [];
+        if (impacts.length > 0) steps.push({id: impacts[0], label: "3. Impatto"});
     }
 
-    // 2. COLLEGAMENTI LOGICI (Vettori -> Minacce o Minacce -> Impatti)
-    const relatedIds = ACN_RELATIONS[id] || [];
-    
-    // 3. COLLEGAMENTI PER TECNICHE MITRE (Se condividono TTPs)
-    const currentMitreIds = getMitreIds(id);
-
-    allNodes.forEach(node => {
-        const nodeId = node.dataset.id;
-
-        // Regola A: È un ID correlato direttamente nelle nostre regole?
-        if (relatedIds.includes(nodeId)) {
+    // APPLICAZIONE VISIVA DEI PASSAGGI
+    steps.forEach((step, index) => {
+        const node = document.querySelector(`.relation-node[data-id="${step.id}"]`);
+        if (node) {
             node.style.opacity = "1";
-            node.style.boxShadow = "0 0 15px rgba(255,255,255,0.3)";
-        }
-
-        // Regola B: È la fase Kill Chain corretta per questa minaccia?
-        if (killchain[id] && nodeId === killchain[id].toLowerCase().replace(/\s+/g, '-')) {
-            node.style.opacity = "1";
-        }
-
-        // Regola C: Condivide tecniche MITRE?
-        if (currentMitreIds.length > 0) {
-            const nodeMitreIds = getMitreIds(nodeId);
-            if (nodeMitreIds.some(t => currentMitreIds.includes(t))) {
-                node.style.opacity = "1";
-                node.style.borderColor = "var(--primary)";
-            }
+            node.style.borderColor = "var(--primary)";
+            const badge = document.createElement('span');
+            badge.className = 'step-badge';
+            badge.textContent = step.label;
+            node.appendChild(badge);
         }
     });
 }

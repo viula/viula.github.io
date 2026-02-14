@@ -134,6 +134,7 @@ body {
 .relation-node {
   transition: opacity 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
   will-change: opacity, transform;
+  position: relative;
 }
 
 .relation-node:hover {
@@ -150,6 +151,34 @@ body {
   border-bottom: 1px solid #334155;
   padding-bottom: 10px;
   margin-bottom: 20px;
+}
+
+
+.step-badge {
+    position: absolute;
+    top: -10px;
+    right: -5px;
+    background: #ff5722;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    pointer-events: none;
+    z-index: 20;
+    white-space: nowrap;
+}
+
+/* Animazione per il percorso */
+@keyframes pulse-border {
+    0% { box-shadow: 0 0 0 0 rgba(11, 92, 171, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(11, 92, 171, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(11, 92, 171, 0); }
+}
+
+.relation-node[style*="opacity: 1"] {
+    animation: pulse-border 2s infinite;
 }
 
 /* ============================================================
