@@ -23,6 +23,16 @@ const ACN_RELATIONS = {
     "vulnerability": ["unauthorised-access", "data-leak"]
 };
 
+const ISO_MAPPING = {
+    "malicious-code": ["A.8.7 (Protection against malware)", "A.8.8 (Management of technical vulnerabilities)"],
+    "social-engineering": ["A.7.4 (Information security awareness, education and training)"],
+    "vulnerability": ["A.8.8 (Management of technical vulnerabilities)", "A.5.7 (Threat intelligence)"],
+    "email": ["A.8.13 (Information security in network services)"],
+    "availability": ["A.8.14 (Information redundancy)", "A.5.30 (ICT readiness for business continuity)"],
+    "data-exposure": ["A.8.12 (Data leakage prevention)", "A.8.11 (Data masking)"],
+    "unauthorised-access": ["A.5.15 (Access control)", "A.5.18 (Access rights)"]
+};
+
 const SINGLE_OPEN_MODE = true;
 
 async function loadData() {
@@ -182,6 +192,20 @@ function renderPredicatePanel(pred, panel, subset) {
   if (kBlock) info.insertAdjacentHTML('beforeend', kBlock);
 
   if (info.children.length > 0) panel.appendChild(info);
+  
+    const isoData = ISO_MAPPING[pred.value];
+    if (isoData) {
+        const isoBlock = `
+            <div class="info-block iso" style="border-left: 4px solid #f59e0b; padding-left:10px; margin-top:10px;">
+                <h4 style="color:#f59e0b">Controlli ISO 27001 Correlati</h4>
+                <ul style="font-size: 13px;">
+                    ${isoData.map(c => `<li><strong>${c}</strong></li>`).join('')}
+                </ul>
+            </div>
+        `;
+        // Inseriscilo nella sezione info
+        panel.querySelector('.predicate-info').insertAdjacentHTML('beforeend', isoBlock);
+    }
 
   // 3. CARDS DEI VALORI (ITEM)
   if (subset && subset.entry && subset.entry.length > 0) {
@@ -333,6 +357,20 @@ function showRelationMatrix() {
       <div class="node-column" id="col-impact"><h4>Impatto Finali</h4></div>
     </div>
   `;
+  
+ matrixView.innerHTML = `
+  <h2 style="color:white; margin-bottom:20px;">Mappa delle Relazioni e Mitigazione ISO 27001</h2>
+  <div style="display: flex; justify-content: space-between; gap: 20px;">
+    <div class="node-column" id="col-vectors"><h4>Vettori</h4></div>
+    <div class="node-column" id="col-threats"><h4>Minacce</h4></div>
+    <div class="node-column" id="col-killchain"><h4>Fase KC</h4></div>
+    <div class="node-column" id="col-impact"><h4>Impatti</h4></div>
+    <div class="node-column" id="col-iso"><h4>Controlli ISO 27001</h4></div>
+  </div>
+`;
+
+  const isoControls = [...new Set(Object.values(ISO_MAPPING).flat())];
+  renderNodes('col-iso', isoControls.map(c => ({expanded: c})), '#f59e0b');
 
   // 1. Popola Vettori (dal predicato 'vector')
   const vectorEntries = acn.values.find(v => v.predicate === 'vector')?.entry || [];
@@ -411,6 +449,12 @@ function highlightConnections(id, predicate) {
         const impacts = ACN_RELATIONS[id] || [];
         if (impacts.length > 0) steps.push({id: impacts[0], label: "3. Impatto"});
     }
+    
+    const isoMatches = ISO_MAPPING[id] || [];
+    isoMatches.forEach((isoControl, idx) => {
+        const isoId = isoControl.toLowerCase().replace(/\s+/g, '-');
+        steps.push({ id: isoId, label: `Difesa: ${isoControl.split(' ')[0]}` });
+    });
 
     // APPLICAZIONE VISIVA DEI PASSAGGI
     steps.forEach((step, index) => {
