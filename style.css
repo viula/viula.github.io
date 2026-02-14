@@ -135,6 +135,7 @@ body {
   transition: opacity 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
   will-change: opacity, transform;
   position: relative;
+  overflow: visible !important;
 }
 
 .relation-node:hover {
@@ -156,18 +157,15 @@ body {
 
 .step-badge {
     position: absolute;
-    top: -10px;
-    right: -5px;
-    background: #ff5722;
+    top: -12px;
+    right: -10px;
+    background: var(--primary);
     color: white;
-    font-size: 10px;
-    font-weight: bold;
-    padding: 2px 6px;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    font-size: 9px;
+    padding: 2px 5px;
+    border-radius: 4px;
     pointer-events: none;
-    z-index: 20;
-    white-space: nowrap;
+    text-transform: uppercase;
 }
 
 /* Animazione per il percorso */

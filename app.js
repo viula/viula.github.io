@@ -10,17 +10,21 @@ let kevList = [];
 let killchain = null;
 
 const ACN_RELATIONS = {
-    // VETTORE -> MINACCE CORRELATE
-    "email": ["social-engineering", "malicious-code"],
-    "web": ["vulnerability", "malicious-code", "active-scanning"],
-    "removable-media": ["malicious-code"],
-    "external-assets": ["vulnerability", "availability", "data-exposure"],
+    // VETTORI -> MINACCE
+    "email": ["social-engineering", "malicious-code", "phishing"],
+    "web": ["vulnerability", "malicious-code", "active-scanning", "drive-by-download"],
+    "removable-media": ["malicious-code", "infection"],
+    "external-assets": ["vulnerability", "active-scanning", "data-exposure"],
+    "social-media": ["social-engineering", "fraud"],
+    "supply-chain": ["malicious-code", "vulnerability"],
     
-    // MINACCIA -> IMPATTI TIPICI
-    "malicious-code": ["infection", "data-exfiltration", "service-disruption"],
-    "social-engineering": ["unauthorised-access", "fraud"],
-    "availability": ["service-disruption", "system-crash"],
-    "vulnerability": ["unauthorised-access", "data-leak"]
+    // MINACCE -> IMPATTI
+    "malicious-code": ["infection", "data-exfiltration", "service-disruption", "unauthorised-access"],
+    "social-engineering": ["unauthorised-access", "fraud", "data-leak"],
+    "vulnerability": ["unauthorised-access", "data-exposure", "system-crash"],
+    "availability": ["service-disruption", "system-crash", "denial-of-service"],
+    "active-scanning": ["information-gathering"],
+    "data-exposure": ["data-leak", "identity-theft"]
 };
 
 const ISO_MAPPING = {
@@ -67,6 +71,14 @@ async function loadData() {
 }
 
 loadData();
+
+function normalizeId(str) {
+    if (!str) return "";
+    return str.toString().toLowerCase().trim()
+        .replace(/\s+/g, '-')       // Spazi in trattini
+        .replace(/[^\w\-]+/g, '')   // Rimuove caratteri speciali
+        .replace(/\-\-+/g, '-');    // Rimuove trattini doppi
+}
 
 /* --- TABS --- */
 function buildMacroTabs() {
@@ -413,58 +425,67 @@ function renderNodes(columnId, items, color, predicateValue = null) {
   });
 }
 
-function highlightConnections(id, predicate) {
+function highlightConnections(rawId, predicate) {
+    const id = normalizeId(rawId);
     const allNodes = document.querySelectorAll('.relation-node');
+    
+    // Reset iniziale: spegniamo tutto
     allNodes.forEach(n => {
         n.style.opacity = "0.1";
-        n.classList.remove('step-1', 'step-2', 'step-3', 'step-4');
-        const badge = n.querySelector('.step-badge');
-        if (badge) badge.remove();
+        n.style.borderColor = "#334155";
+        const oldBadge = n.querySelector('.step-badge');
+        if (oldBadge) oldBadge.remove();
     });
 
-    const steps = [];
-
-    // FASE 1: Identifichiamo il punto di partenza
-    const activeNode = document.querySelector(`.relation-node[data-id="${id}"]`);
+    // Troviamo il nodo attivo
+    const activeNode = Array.from(allNodes).find(n => normalizeId(n.dataset.id) === id);
     if (!activeNode) return;
 
-    // Determiniamo se stiamo partendo da un Vettore o da una Minaccia
-    let startType = "";
-    if (predicate === 'vector') startType = "VEC";
-    else if (enriched.macro_categories['TT'].predicates.includes(id)) startType = "THR";
+    activeNode.style.opacity = "1";
+    activeNode.style.borderColor = "var(--primary)";
 
-    // COSTRUZIONE DEL PERCORSO
-    if (startType === "VEC") {
-        steps.push({id: id, label: "1. Origine"});
-        const threats = ACN_RELATIONS[id] || [];
-        if (threats.length > 0) {
-            steps.push({id: threats[0], label: "2. Esecuzione"}); // Prendiamo la prima correlata
-            const phase = killchain[threats[0]];
-            if (phase) steps.push({id: phase.toLowerCase().replace(/\s+/g, '-'), label: "3. Fase KC"});
-        }
-    } else {
-        steps.push({id: id, label: "1. Minaccia"});
-        const phase = killchain[id];
-        if (phase) steps.push({id: phase.toLowerCase().replace(/\s+/g, '-'), label: "2. Fase KC"});
-        const impacts = ACN_RELATIONS[id] || [];
-        if (impacts.length > 0) steps.push({id: impacts[0], label: "3. Impatto"});
-    }
+    // 1. Cerchiamo i collegamenti diretti (da ACN_RELATIONS)
+    const directMatches = ACN_RELATIONS[id] || [];
     
-    const isoMatches = ISO_MAPPING[id] || [];
-    isoMatches.forEach((isoControl, idx) => {
-        const isoId = isoControl.toLowerCase().replace(/\s+/g, '-');
-        steps.push({ id: isoId, label: `Difesa: ${isoControl.split(' ')[0]}` });
-    });
+    // 2. Cerchiamo i collegamenti per Kill Chain
+    const kcPhase = killchain[id] ? normalizeId(killchain[id]) : null;
 
-    // APPLICAZIONE VISIVA DEI PASSAGGI
-    steps.forEach((step, index) => {
-        const node = document.querySelector(`.relation-node[data-id="${step.id}"]`);
-        if (node) {
+    // 3. Cerchiamo i controlli ISO
+    const isoMatches = ISO_MAPPING[id] ? ISO_MAPPING[id].map(i => normalizeId(i)) : [];
+
+    allNodes.forEach(node => {
+        const nodeId = normalizeId(node.dataset.id);
+        let stepLabel = "";
+
+        // Logica di accensione:
+        // A. È un match diretto?
+        if (directMatches.includes(nodeId)) {
             node.style.opacity = "1";
-            node.style.borderColor = "var(--primary)";
+            stepLabel = "Correlato";
+        }
+        // B. È la fase Kill Chain?
+        if (kcPhase && nodeId === kcPhase) {
+            node.style.opacity = "1";
+            stepLabel = "Fase Attacco";
+        }
+        // C. È un controllo ISO?
+        if (isoMatches.includes(nodeId)) {
+            node.style.opacity = "1";
+            stepLabel = "Mitigazione";
+        }
+        // D. Qualcuno punta a me? (Relazione inversa)
+        for (let key in ACN_RELATIONS) {
+            if (ACN_RELATIONS[key].includes(id) && nodeId === normalizeId(key)) {
+                node.style.opacity = "1";
+                stepLabel = "Vettore Tipico";
+            }
+        }
+
+        // Se il nodo è acceso, aggiungiamo un piccolo badge descrittivo
+        if (node.style.opacity === "1" && node !== activeNode && stepLabel) {
             const badge = document.createElement('span');
             badge.className = 'step-badge';
-            badge.textContent = step.label;
+            badge.textContent = stepLabel;
             node.appendChild(badge);
         }
     });
