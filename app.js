@@ -228,16 +228,68 @@ function renderPredicatePanel(pred, panel, subset) {
       card.className = "value-card";
       if (val.colour) card.style.borderLeft = `6px solid ${val.colour}`;
       card.innerHTML = `
-        <h3>${escapeHTML(val.expanded)}</h3>
-        <div class="value-meta">Codice: <code>${escapeHTML(val.value)}</code></div>
-        <div class="value-desc">${escapeHTML(val.description || "")}</div>
-      `;
+          <h3>${escapeHTML(val.expanded)}</h3>
+          <div class="value-meta">Codice: <code>${escapeHTML(val.value)}</code></div>
+          <div class="value-desc">${escapeHTML(val.description || "")}</div>
+          <button class="playbook-btn" onclick="generatePlaybook('${pred.value}', '${val.value}')">
+            📋 Genera Cheat-Sheet
+          </button>
+        `;
       valuesDiv.appendChild(card);
     });
     panel.appendChild(valuesDiv);
   } else {
     panel.insertAdjacentHTML('beforeend', '<p style="padding:10px; color:#999;">Nessun valore specifico trovato per questo predicato.</p>');
   }
+}
+
+function generatePlaybook(predKey, valKey) {
+    const pred = acn.predicates.find(p => p.value === predKey);
+    const subset = acn.values.find(v => v.predicate === predKey);
+    const entry = subset?.entry.find(e => e.value === valKey);
+    
+    const mitre = mitreEnriched[predKey] || { core: [], related: [] };
+    const iso = ISO_MAPPING[predKey] || ["Nessun controllo specifico mappato"];
+    const phase = killchain[predKey] || "N/A";
+
+    const overlay = document.createElement('div');
+    overlay.className = 'playbook-overlay';
+    
+    overlay.innerHTML = `
+        <div class="playbook-modal">
+            <header>
+                <h2>Incident Cheat-Sheet: ${entry.expanded}</h2>
+                <button onclick="this.closest('.playbook-overlay').remove()">✕</button>
+            </header>
+            <div class="playbook-body">
+                <section>
+                    <h4>1. Identificazione (Tassonomia ACN)</h4>
+                    <p><strong>Tag:</strong> <code>acn:${predKey}="${valKey}"</code></p>
+                    <p><strong>Fase Kill Chain:</strong> ${phase}</p>
+                </section>
+                
+                <section>
+                    <h4>2. Detection (MITRE ATT&CK)</h4>
+                    <ul>
+                        ${mitre.core.map(t => `<li><strong>${t.id}</strong>: ${t.name}</li>`).join('')}
+                    </ul>
+                </section>
+                
+                <section>
+                    <h4>3. Mitigazione (ISO 27001)</h4>
+                    <ul>
+                        ${iso.map(c => `<li>${c}</li>`).join('')}
+                    </ul>
+                </section>
+
+                <div class="playbook-footer">
+                    <button onclick="window.print()">🖨️ Stampa Report</button>
+                    <button onclick="copyToClipboard('${entry.expanded}')">🔗 Copia per Report</button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
 }
 
 /* --- HELPERS --- */
