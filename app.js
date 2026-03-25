@@ -10,17 +10,31 @@ let kevList = [];
 let killchain = null;
 
 const ACN_RELATIONS = {
-    // VETTORE -> MINACCE CORRELATE
-    "email": ["social-engineering", "malicious-code"],
-    "web": ["vulnerability", "malicious-code", "active-scanning"],
-    "removable-media": ["malicious-code"],
-    "external-assets": ["vulnerability", "availability", "data-exposure"],
+    // VETTORI -> MINACCE
+    "email": ["social-engineering", "malicious-code", "phishing"],
+    "web": ["vulnerability", "malicious-code", "active-scanning", "drive-by-download"],
+    "removable-media": ["malicious-code", "infection"],
+    "external-assets": ["vulnerability", "active-scanning", "data-exposure"],
+    "social-media": ["social-engineering", "fraud"],
+    "supply-chain": ["malicious-code", "vulnerability"],
     
-    // MINACCIA -> IMPATTI TIPICI
-    "malicious-code": ["infection", "data-exfiltration", "service-disruption"],
-    "social-engineering": ["unauthorised-access", "fraud"],
-    "availability": ["service-disruption", "system-crash"],
-    "vulnerability": ["unauthorised-access", "data-leak"]
+    // MINACCE -> IMPATTI
+    "malicious-code": ["infection", "data-exfiltration", "service-disruption", "unauthorised-access"],
+    "social-engineering": ["unauthorised-access", "fraud", "data-leak"],
+    "vulnerability": ["unauthorised-access", "data-exposure", "system-crash"],
+    "availability": ["service-disruption", "system-crash", "denial-of-service"],
+    "active-scanning": ["information-gathering"],
+    "data-exposure": ["data-leak", "identity-theft"]
+};
+
+const ISO_MAPPING = {
+    "malicious-code": ["A.8.7 (Protection against malware)", "A.8.8 (Management of technical vulnerabilities)"],
+    "social-engineering": ["A.7.4 (Information security awareness, education and training)"],
+    "vulnerability": ["A.8.8 (Management of technical vulnerabilities)", "A.5.7 (Threat intelligence)"],
+    "email": ["A.8.13 (Information security in network services)"],
+    "availability": ["A.8.14 (Information redundancy)", "A.5.30 (ICT readiness for business continuity)"],
+    "data-exposure": ["A.8.12 (Data leakage prevention)", "A.8.11 (Data masking)"],
+    "unauthorised-access": ["A.5.15 (Access control)", "A.5.18 (Access rights)"]
 };
 
 const SINGLE_OPEN_MODE = true;
@@ -96,6 +110,14 @@ async function loadData() {
 }
 
 loadData();
+
+function normalizeId(str) {
+    if (!str) return "";
+    return str.toString().toLowerCase().trim()
+        .replace(/\s+/g, '-')       // Spazi in trattini
+        .replace(/[^\w\-]+/g, '')   // Rimuove caratteri speciali
+        .replace(/\-\-+/g, '-');    // Rimuove trattini doppi
+}
 
 /* --- TABS --- */
 function buildMacroTabs() {
@@ -221,6 +243,20 @@ function renderPredicatePanel(pred, panel, subset) {
   if (kBlock) info.insertAdjacentHTML('beforeend', kBlock);
 
   if (info.children.length > 0) panel.appendChild(info);
+  
+    const isoData = ISO_MAPPING[pred.value];
+    if (isoData) {
+        const isoBlock = `
+            <div class="info-block iso" style="border-left: 4px solid #f59e0b; padding-left:10px; margin-top:10px;">
+                <h4 style="color:#f59e0b">Controlli ISO 27001 Correlati</h4>
+                <ul style="font-size: 13px;">
+                    ${isoData.map(c => `<li><strong>${c}</strong></li>`).join('')}
+                </ul>
+            </div>
+        `;
+        // Inseriscilo nella sezione info
+        panel.querySelector('.predicate-info').insertAdjacentHTML('beforeend', isoBlock);
+    }
 
   // 3. CARDS DEI VALORI (ITEM)
   if (subset && subset.entry && subset.entry.length > 0) {
@@ -231,16 +267,68 @@ function renderPredicatePanel(pred, panel, subset) {
       card.className = "value-card";
       if (val.colour) card.style.borderLeft = `6px solid ${val.colour}`;
       card.innerHTML = `
-        <h3>${escapeHTML(val.expanded)}</h3>
-        <div class="value-meta">Codice: <code>${escapeHTML(val.value)}</code></div>
-        <div class="value-desc">${escapeHTML(val.description || "")}</div>
-      `;
+          <h3>${escapeHTML(val.expanded)}</h3>
+          <div class="value-meta">Codice: <code>${escapeHTML(val.value)}</code></div>
+          <div class="value-desc">${escapeHTML(val.description || "")}</div>
+          <button class="playbook-btn" onclick="generatePlaybook('${pred.value}', '${val.value}')">
+            📋 Genera Cheat-Sheet
+          </button>
+        `;
       valuesDiv.appendChild(card);
     });
     panel.appendChild(valuesDiv);
   } else {
     panel.insertAdjacentHTML('beforeend', '<p style="padding:10px; color:#999;">Nessun valore specifico trovato per questo predicato.</p>');
   }
+}
+
+function generatePlaybook(predKey, valKey) {
+    const pred = acn.predicates.find(p => p.value === predKey);
+    const subset = acn.values.find(v => v.predicate === predKey);
+    const entry = subset?.entry.find(e => e.value === valKey);
+    
+    const mitre = mitreEnriched[predKey] || { core: [], related: [] };
+    const iso = ISO_MAPPING[predKey] || ["Nessun controllo specifico mappato"];
+    const phase = killchain[predKey] || "N/A";
+
+    const overlay = document.createElement('div');
+    overlay.className = 'playbook-overlay';
+    
+    overlay.innerHTML = `
+        <div class="playbook-modal">
+            <header>
+                <h2>Incident Cheat-Sheet: ${entry.expanded}</h2>
+                <button onclick="this.closest('.playbook-overlay').remove()">✕</button>
+            </header>
+            <div class="playbook-body">
+                <section>
+                    <h4>1. Identificazione (Tassonomia ACN)</h4>
+                    <p><strong>Tag:</strong> <code>acn:${predKey}="${valKey}"</code></p>
+                    <p><strong>Fase Kill Chain:</strong> ${phase}</p>
+                </section>
+                
+                <section>
+                    <h4>2. Detection (MITRE ATT&CK)</h4>
+                    <ul>
+                        ${mitre.core.map(t => `<li><strong>${t.id}</strong>: ${t.name}</li>`).join('')}
+                    </ul>
+                </section>
+                
+                <section>
+                    <h4>3. Mitigazione (ISO 27001)</h4>
+                    <ul>
+                        ${iso.map(c => `<li>${c}</li>`).join('')}
+                    </ul>
+                </section>
+
+                <div class="playbook-footer">
+                    <button onclick="window.print()">🖨️ Stampa Report</button>
+                    <button onclick="copyToClipboard('${entry.expanded}')">🔗 Copia per Report</button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
 }
 
 /* --- HELPERS --- */
@@ -372,6 +460,20 @@ function showRelationMatrix() {
       <div class="node-column" id="col-impact"><h4>Impatto Finali</h4></div>
     </div>
   `;
+  
+ matrixView.innerHTML = `
+  <h2 style="color:white; margin-bottom:20px;">Mappa delle Relazioni e Mitigazione ISO 27001</h2>
+  <div style="display: flex; justify-content: space-between; gap: 20px;">
+    <div class="node-column" id="col-vectors"><h4>Vettori</h4></div>
+    <div class="node-column" id="col-threats"><h4>Minacce</h4></div>
+    <div class="node-column" id="col-killchain"><h4>Fase KC</h4></div>
+    <div class="node-column" id="col-impact"><h4>Impatti</h4></div>
+    <div class="node-column" id="col-iso"><h4>Controlli ISO 27001</h4></div>
+  </div>
+`;
+
+  const isoControls = [...new Set(Object.values(ISO_MAPPING).flat())];
+  renderNodes('col-iso', isoControls.map(c => ({expanded: c})), '#f59e0b');
 
   // 1. Popola Vettori (dal predicato 'vector')
   const vectorEntries = acn.values.find(v => v.predicate === 'vector')?.entry || [];
@@ -414,44 +516,68 @@ function renderNodes(columnId, items, color, predicateValue = null) {
   });
 }
 
-function highlightConnections(id, predicate) {
+function highlightConnections(rawId, predicate) {
+    const id = normalizeId(rawId);
     const allNodes = document.querySelectorAll('.relation-node');
-    allNodes.forEach(n => n.style.opacity = "0.1"); // Oscura tutto molto di più
-
-    // 1. Evidenzia il nodo su cui si trova il mouse
-    const activeNode = document.querySelector(`.relation-node[data-id="${id}"]`);
-    if (activeNode) {
-        activeNode.style.opacity = "1";
-        activeNode.style.borderColor = "white";
-    }
-
-    // 2. COLLEGAMENTI LOGICI (Vettori -> Minacce o Minacce -> Impatti)
-    const relatedIds = ACN_RELATIONS[id] || [];
     
-    // 3. COLLEGAMENTI PER TECNICHE MITRE (Se condividono TTPs)
-    const currentMitreIds = getMitreIds(id);
+    // Reset iniziale: spegniamo tutto
+    allNodes.forEach(n => {
+        n.style.opacity = "0.1";
+        n.style.borderColor = "#334155";
+        const oldBadge = n.querySelector('.step-badge');
+        if (oldBadge) oldBadge.remove();
+    });
+
+    // Troviamo il nodo attivo
+    const activeNode = Array.from(allNodes).find(n => normalizeId(n.dataset.id) === id);
+    if (!activeNode) return;
+
+    activeNode.style.opacity = "1";
+    activeNode.style.borderColor = "var(--primary)";
+
+    // 1. Cerchiamo i collegamenti diretti (da ACN_RELATIONS)
+    const directMatches = ACN_RELATIONS[id] || [];
+    
+    // 2. Cerchiamo i collegamenti per Kill Chain
+    const kcPhase = killchain[id] ? normalizeId(killchain[id]) : null;
+
+    // 3. Cerchiamo i controlli ISO
+    const isoMatches = ISO_MAPPING[id] ? ISO_MAPPING[id].map(i => normalizeId(i)) : [];
 
     allNodes.forEach(node => {
-        const nodeId = node.dataset.id;
+        const nodeId = normalizeId(node.dataset.id);
+        let stepLabel = "";
 
-        // Regola A: È un ID correlato direttamente nelle nostre regole?
-        if (relatedIds.includes(nodeId)) {
+        // Logica di accensione:
+        // A. È un match diretto?
+        if (directMatches.includes(nodeId)) {
             node.style.opacity = "1";
-            node.style.boxShadow = "0 0 15px rgba(255,255,255,0.3)";
+            stepLabel = "Correlato";
         }
-
-        // Regola B: È la fase Kill Chain corretta per questa minaccia?
-        if (killchain[id] && nodeId === killchain[id].toLowerCase().replace(/\s+/g, '-')) {
+        // B. È la fase Kill Chain?
+        if (kcPhase && nodeId === kcPhase) {
             node.style.opacity = "1";
+            stepLabel = "Fase Attacco";
         }
-
-        // Regola C: Condivide tecniche MITRE?
-        if (currentMitreIds.length > 0) {
-            const nodeMitreIds = getMitreIds(nodeId);
-            if (nodeMitreIds.some(t => currentMitreIds.includes(t))) {
+        // C. È un controllo ISO?
+        if (isoMatches.includes(nodeId)) {
+            node.style.opacity = "1";
+            stepLabel = "Mitigazione";
+        }
+        // D. Qualcuno punta a me? (Relazione inversa)
+        for (let key in ACN_RELATIONS) {
+            if (ACN_RELATIONS[key].includes(id) && nodeId === normalizeId(key)) {
                 node.style.opacity = "1";
-                node.style.borderColor = "var(--primary)";
+                stepLabel = "Vettore Tipico";
             }
+        }
+
+        // Se il nodo è acceso, aggiungiamo un piccolo badge descrittivo
+        if (node.style.opacity === "1" && node !== activeNode && stepLabel) {
+            const badge = document.createElement('span');
+            badge.className = 'step-badge';
+            badge.textContent = stepLabel;
+            node.appendChild(badge);
         }
     });
 }
