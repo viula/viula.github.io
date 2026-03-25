@@ -72,6 +72,63 @@ body {
   font-weight: bold;
 }
 
+/*
+ * Newsfeed ACN
+ * */
+
+.news-feed-container {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px 40px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.news-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 4px;
+}
+
+.pulse-icon {
+    width: 8px;
+    height: 8px;
+    background: #ef4444;
+    border-radius: 50%;
+    box-shadow: 0 0 0 rgba(239, 68, 68, 0.4);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(239, 68, 68, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.news-item {
+    font-size: 13px;
+    margin-bottom: 6px;
+    display: block;
+    text-decoration: none;
+    color: #1e293b;
+    transition: color 0.2s;
+}
+
+.news-item:hover { color: #0f172a; text-decoration: underline; }
+
+.news-date {
+    font-size: 10px;
+    color: #94a3b8;
+    margin-right: 8px;
+}
 /* ============================================================
    CONTENT WRAPPER
 ============================================================ */

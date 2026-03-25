@@ -25,6 +25,45 @@ const ACN_RELATIONS = {
 
 const SINGLE_OPEN_MODE = true;
 
+// Fetch data da feed ACN
+
+async function fetchACNNews() {
+    const rssUrl = "https://www.acn.gov.it/portale/feedrss/-/journal/rss/20119/723192";
+    // Usiamo il servizio rss2json per convertire l'XML in JSON leggibile via JS
+    const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+
+    const container = document.getElementById("rssContent");
+
+    try {
+        const response = await fetch(proxyUrl);
+        const data = await response.json();
+
+        if (data.status === 'ok') {
+            container.innerHTML = ""; // Pulisce il loading
+            data.items.slice(0, 5).forEach(item => { // Prendiamo le ultime 5 notizie
+                const date = new Date(item.pubDate).toLocaleDateString('it-IT');
+                const newsHtml = `
+                    <a href="${item.link}" target="_blank" class="news-item">
+                        <span class="news-date">${date}</span>
+                        ${item.title}
+                    </a>
+                `;
+                container.insertAdjacentHTML('beforeend', newsHtml);
+            });
+        } else {
+            throw new Error("Errore nel parsing del feed");
+        }
+    } catch (error) {
+        console.error("RSS Error:", error);
+        container.innerHTML = "<p class='loading-text'>Impossibile caricare le notizie ACN.</p>";
+    }
+}
+
+// Chiama la funzione all'avvio dell'app
+fetchACNNews();
+
+// Load data da fonti
+
 async function loadData() {
   try {
     // Carichiamo i file. Nota: usiamo mitre_mapping_enriched se esiste, altrimenti mitre_mapping
